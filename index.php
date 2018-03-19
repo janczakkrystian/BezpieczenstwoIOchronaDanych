@@ -12,11 +12,11 @@ Config\Database\DBConnection::setDBConnection(
 if(isset($_GET['controller']))
     $controller = $_GET['controller'];
 else
-    $controller = 'Movie';
+    $controller = 'User';
 if(isset($_GET['action']))
     $action = $_GET['action'];
 else
-    $action = 'getAll';
+    $action = 'logForm';
 
 if(isset($_GET['id']))
     $id = $_GET['id'];
