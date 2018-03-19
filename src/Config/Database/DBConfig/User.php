@@ -11,4 +11,5 @@
         public static $IdStatus = "IdStatus";
         public static $Code = "Code";
         public static $TrialLimit = "TrialLimit";
+        public static $Active = "Active";
 }

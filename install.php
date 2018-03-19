@@ -101,7 +101,7 @@
     // Create table Status
     $query = 'CREATE TABLE IF NOT EXISTS `'.DB::$tableStatus.'` (
             `'.DB\Status::$IdStatus.'` INT NOT NULL AUTO_INCREMENT,
-            `'.DB\Status::$Name.'` VARCHAR(30) NOT NULL,
+            `'.DB\Status::$Name.'` VARCHAR(30) NOT NULL UNIQUE,
             PRIMARY KEY ('.DB\Status::$IdStatus.')) ENGINE=InnoDB;';
     try
     {
@@ -115,7 +115,7 @@
     // Create table AccountDictionary
     $query = 'CREATE TABLE IF NOT EXISTS `'.DB::$tableAccountDictionary.'` (
             `'.DB\AccountDictionary::$IdAccountDictionary.'` INT NOT NULL AUTO_INCREMENT,
-            `'.DB\AccountDictionary::$Name.'` VARCHAR(50) NOT NULL,
+            `'.DB\AccountDictionary::$Name.'` VARCHAR(50) NOT NULL UNIQUE,
             PRIMARY KEY ('.DB\AccountDictionary::$IdAccountDictionary.')) ENGINE=InnoDB;';
     try
     {
@@ -132,14 +132,16 @@
                 `'.DB\User::$FirstName.'` VARCHAR(100) NOT NULL,
                 `'.DB\User::$LastName.'` VARCHAR(200) NOT NULL,
                 `'.DB\User::$Email.'` VARCHAR(200) NOT NULL,
-                `'.DB\User::$Login.'` VARCHAR(200) NOT NULL,
+                `'.DB\User::$Login.'` VARCHAR(200) NOT NULL UNIQUE,
                 `'.DB\User::$Password.'` VARCHAR(200) NOT NULL,
                 `'.DB\User::$Code.'` INT NOT NULL,
                 `'.DB\User::$TrialLimit.'` INT NOT NULL,
                 `'.DB\User::$IdStatus.'` INT NOT NULL,
+                `'.DB\User::$Active.'` BIT NOT NULL,
                 PRIMARY KEY ('.DB\User::$IdUser.'),
                 FOREIGN KEY ('.DB\User::$IdStatus.') REFERENCES '.DB::$tableStatus.'('.DB\Status::$IdStatus.') ON DELETE CASCADE
-                ) ENGINE=InnoDB;';
+                ) ENGINE=InnoDB;          
+                ';
     try
     {
         $pdo->exec($query);
@@ -220,6 +222,30 @@
     catch(PDOException $e)
     {
         echo \Config\Database\DBErrorName::$create_table.DB::$tableUserAccount;
+    }
+
+
+    //!!!!!!!!!!!!!!!!!!!INSERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    //Table Status
+    $Statuses = array();
+    $Statuses[] = array(
+        'Name' => 'Administrator');
+    $Statuses[] = array(
+        'Name' => 'Użytkownik');
+    // insert
+    try
+    {
+        $stmt = $pdo -> prepare('INSERT INTO `'.DB::$tableStatus.'` (`'.DB\Status::$Name.'`) VALUES(:Name)');
+        foreach($Statuses as $status)
+        {
+            $stmt -> bindValue(':Name', $status['Name'], PDO::PARAM_STR);
+            $stmt -> execute();
+        }
+    }
+    catch(PDOException $e)
+    {
+        echo \Config\Database\DBErrorName::$noadd;
     }
 
 echo "<b>Instalacja aplikacji zakończona!</b>"
