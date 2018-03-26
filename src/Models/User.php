@@ -1,39 +1,50 @@
 <?php
     namespace Models;
+    use Config\Database\DBConfig;
     use \PDO;
     class User extends Model {
 
-        public function register($FirstName , $LastName , $Login , $Password){
+        public function register($FirstName , $LastName , $Email , $Login , $Password){
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if($FirstName === null || $LastName === null || $Login === null || $Password === null){
+            if($FirstName === null || $LastName === null || $Email === null || $Login === null || $Password === null){
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
             $data = array();
             $options = array('cost' => 6);
             $Password = password_hash($Password , PASSWORD_BCRYPT, $options);
-            $Code = rand(1000000000) + 999999999;
+            $Code = rand(1 , 1000000000) + 999999999;
             $IdStatus = 2;
             $TrialLimit = 7;
-            $Active = true;
+            $Active = 0;
+            $CreateDate = date('Y-m-d');
             try{
-                $stmt = $this->pdo->prepare('INSERT INTO `'.\Config\Database\DBConfig::$tableUser.'` (`'.\Config\Database\DBConfig\User::$FirstName.'` , `'.\Config\Database\DBConfig\User::$LastName.'` , `'.\Config\Database\DBConfig\User::$Login.'` , `'.\Config\Database\DBConfig\User::$Password.'` , `'.\Config\Database\DBConfig\User::$Code.'` , `'.\Config\Database\DBConfig\User::$IdStatus.'`, `'.\Config\Database\DBConfig\User::$TrialLimit.'` , `'.\Config\Database\DBConfig\User::$Active.'`) VALUES (:Firstname , :LastName , :Login , :Password , :Code , :IdStatus , :TrialLimit , :Active)');
+                $stmt = $this->pdo->prepare('
+                  START TRANSACTION;
+                  INSERT INTO `'.\Config\Database\DBConfig::$tableUser.'` (`'.\Config\Database\DBConfig\User::$FirstName.'` , `'.\Config\Database\DBConfig\User::$LastName.'`, `'.\Config\Database\DBConfig\User::$Email.'` , `'.\Config\Database\DBConfig\User::$Login.'` , `'.\Config\Database\DBConfig\User::$Password.'` , `'.\Config\Database\DBConfig\User::$Code.'` , `'.\Config\Database\DBConfig\User::$IdStatus.'`, `'.\Config\Database\DBConfig\User::$TrialLimit.'` , `'.\Config\Database\DBConfig\User::$Active.'`) VALUES (:FirstName , :LastName , :Email , :Login , :Password , :Code , :IdStatus , :TrialLimit , :Active);
+                  SET @id = (SELECT LAST_INSERT_ID());
+                  INSERT `'.\Config\Database\DBConfig::$tablePasswordsHistory.'` (`'.\Config\Database\DBConfig\PasswordsHistory::$Password.'` , `'.\Config\Database\DBConfig\PasswordsHistory::$CreateDate.'` , `'.\Config\Database\DBConfig\PasswordsHistory::$IdUser.'`) VALUES(:Password2 , :CreateDate , @id);
+                  COMMIT;
+                  ');
                 $stmt->bindValue(':FirstName' , $FirstName , PDO::PARAM_STR);
                 $stmt->bindValue(':LastName' , $LastName , PDO::PARAM_STR);
+                $stmt->bindValue(':Email' , $Email , PDO::PARAM_STR);
                 $stmt->bindValue(':Login' , $Login , PDO::PARAM_STR);
                 $stmt->bindValue(':Password' , $Password , PDO::PARAM_STR);
                 $stmt->bindValue(':Code' , $Code , PDO::PARAM_INT);
                 $stmt->bindValue(':IdStatus' , $IdStatus , PDO::PARAM_INT);
                 $stmt->bindValue(':TrialLimit' , $TrialLimit , PDO::PARAM_INT);
                 $stmt->bindValue(':Active' , $Active , PDO::PARAM_BOOL);
+                $stmt->bindValue(':Password2' , $Password , PDO::PARAM_BOOL);
+                $stmt->bindValue(':CreateDate' , $CreateDate , PDO::PARAM_STR);
                 $result = $stmt->execute();
                 if(!$result)
                     $data['error'] = \Config\Database\DBErrorName::$noadd;
                 else
-                    $data['message'] = \Config\Database\DBMessageName::$addok;
+                    $data['message'] = \Config\Database\DBMessageName::$registerok;
                 $stmt->closeCursor();
             }
             catch(\PDOException $e){
