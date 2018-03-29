@@ -10,4 +10,5 @@ class DBErrorName{
     public static $noadd = "Nie udało dodać się rekordu do bazy!";
     public static $nomatch = "Nie dopasowano rekordu w bazie!";
     public static $empty = "Podana wartość nie może być pusta!";
+    public static $errorCode = "Podany kod nie jest poprawny!";
 }

@@ -137,7 +137,7 @@
                 `'.DB\User::$Code.'` INT NOT NULL,
                 `'.DB\User::$TrialLimit.'` INT NOT NULL,
                 `'.DB\User::$IdStatus.'` INT NOT NULL,
-                `'.DB\User::$Active.'` BIT NOT NULL,
+                `'.DB\User::$Active.'` BINARY NOT NULL,
                 PRIMARY KEY ('.DB\User::$IdUser.'),
                 FOREIGN KEY ('.DB\User::$IdStatus.') REFERENCES '.DB::$tableStatus.'('.DB\Status::$IdStatus.') ON DELETE CASCADE
                 ) ENGINE=InnoDB;          

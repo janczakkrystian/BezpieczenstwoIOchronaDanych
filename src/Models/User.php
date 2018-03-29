@@ -5,6 +5,7 @@
     class User extends Model {
 
         public function register($FirstName , $LastName , $Email , $Login , $Password){
+            $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
@@ -13,13 +14,12 @@
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
-            $data = array();
             $options = array('cost' => 6);
             $Password = password_hash($Password , PASSWORD_BCRYPT, $options);
             $Code = rand(1 , 1000000000) + 999999999;
             $IdStatus = 2;
             $TrialLimit = 7;
-            $Active = 0;
+            $Active = false;
             $CreateDate = date('Y-m-d');
             try{
                 $stmt = $this->pdo->prepare('
@@ -53,29 +53,60 @@
             return $data;
         }
 
-        public function getCode($id){
+        public function verificationCode($id , $code){
+            $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            $data = array();
+            if($id === null || $code === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
             try{
-                $stmt = $this->pdo->prepare('SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Code.'` FROM `'.\Config\Database\DBConfig::$tableUser.'` WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id');
+                $stmt = $this->pdo->prepare('SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` , `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Code.'` FROM `'.\Config\Database\DBConfig::$tableUser.'` WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id');
                 $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
                 $stmt->execute();
-                $code = $stmt->fetchAll();
-                if($code && !empty($code)){
-                    $data['code'] = $code[0];
-                }
+                $codeFromBase = $stmt->fetchAll();
                 $stmt->closeCursor();
             }
             catch(\PDOException $e){
                 $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            if($codeFromBase && !empty($codeFromBase)){
+                //$data['code'] = $codeFromBase[0][\Config\Database\DBConfig\User::$Code];
+                $codeFromBase = $codeFromBase[0][\Config\Database\DBConfig\User::$Code];
+
+                if((int)$code === (int)$codeFromBase) {
+                    try {
+                        $stmt = $this->pdo->prepare('UPDATE `'.\Config\Database\DBConfig::$tableUser.'` SET `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Active.'` = 1 WHERE `' . \Config\Database\DBConfig::$tableUser . '`.`' . \Config\Database\DBConfig\User::$IdUser . '` = :id');
+                        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+                        $result = $stmt->execute();
+                        $stmt->closeCursor();
+
+                        if($result) $data['message'] = \Config\Database\DBMessageName::$veryficationOk;
+                        else $data['error'] = \Config\Database\DBErrorName::$query;
+
+                    } catch (\PDOException $e) {
+                        $data['error'] = \Config\Database\DBErrorName::$query;
+                        return $data;
+                    }
+                }
+                else{
+                    $data['error'] = \Config\Database\DBErrorName::$errorCode;
+                    return $data;
+                }
+            }
+            else{
+                $data['error'] = \Config\Database\DBErrorName::$nomatch;
+                return $data;
             }
             return $data;
         }
 
         public function validatePassword($Login , $Password){
+            $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
@@ -84,7 +115,6 @@
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
-            $data = array();
             try{
                 $stmt = $this->pdo->prepare('SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Password.'` FROM `'.\Config\Database\DBConfig::$tableUser.'` WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Login.'` = :login');
                 $stmt->bindValue(':login' , $Login , PDO::PARAM_STR);

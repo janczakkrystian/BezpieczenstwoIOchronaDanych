@@ -7,4 +7,5 @@ class DBMessageName{
     public static $deleteok = "Rekord usunięto z bazy danych.";
     public static $updateok = "Rekord zaktualizowano w bazie danych.";
     public static $registerok = "Poprawnie zarejestrowano nowego użytkownika.";
+    public static $veryficationOk = "Poprawnie aktywowano konto";
 }
