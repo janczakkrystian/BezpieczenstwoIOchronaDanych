@@ -18,7 +18,7 @@
             $Password = password_hash($Password , PASSWORD_BCRYPT, $options);
             $Code = rand(1 , 1000000000) + 999999999;
             $IdStatus = 2;
-            $TrialLimit = 7;
+            $TrialLimit = 2;
             $Active = false;
             $CreateDate = date('Y-m-d');
             try{
@@ -79,6 +79,70 @@
             return $data;
         }
 
+        public function showTrialLimit($id){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($id === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try{
+                $stmt = $this->pdo->prepare('
+                    SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$TrialLimit.'` 
+                    FROM `'.\Config\Database\DBConfig::$tableUser.'` 
+                    WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id;');
+                $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
+                $result = $stmt->execute();
+                if(!$result){
+                    $data['error'] = \Config\Database\DBErrorName::$query;
+                    return $data;
+                }
+                $trialLimit = $stmt->fetchAll();
+                $data['trialLimit'] = $trialLimit[0][\Config\Database\DBConfig\User::$TrialLimit];
+                $stmt->closeCursor();
+            }
+            catch(\PDOException $e){
+                $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            return $data;
+        }
+
+        public function setTrialLimit($id , $trialLimit){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($id === null || $trialLimit === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try{
+                $stmt = $this->pdo->prepare('           
+                    UPDATE `'.\Config\Database\DBConfig::$tableUser.'` 
+                    SET `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$TrialLimit.'` = :trialLimit 
+                    WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id;
+                    ');
+                $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
+                $stmt->bindValue(':trialLimit' , $trialLimit , PDO::PARAM_INT);
+                $result = $stmt->execute();
+                if(!$result){
+                    $data['error'] = \Config\Database\DBErrorName::$query;
+                    return $data;
+                }
+                $stmt->closeCursor();
+            }
+            catch(\PDOException $e){
+                $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            return $data;
+        }
+
         public function verificationAccount($id , $code){
             $data = array();
             if($this->pdo === null){
@@ -118,10 +182,24 @@
                     }
                 }
                 else{
-                    $data['error'] = \Config\Database\DBErrorName::$errorCode;
+                    $data = $this->showTrialLimit($id);
+                    $trialLimit = $data['trialLimit'];
+                    if($trialLimit > 0) {
+                        $trialLimit = $trialLimit - 1;
+                        $data = $this->setTrialLimit($id , $trialLimit);
+                        if (isset($data['error'])) {
+                            return $data;
+                        }
+                    }
+                    if($trialLimit <= 0){
+                        //Wygenerowanie kodu
+                        $data['error'] = "Wygenerowano nowy kod.";
+                    }
+                    else
+                        $data['error'] = \Config\Database\DBErrorName::$errorCode." Pozostało ".$trialLimit." prób.";
                     return $data;
                 }
-                
+
             }
             else{
                 $data['error'] = \Config\Database\DBErrorName::$nomatch;

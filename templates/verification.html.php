@@ -5,7 +5,7 @@
         <form class="centered-form" action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=verificationAccount" method="POST">
             <legend class="text-center text-info">Potwierdź dane wpisując KOD, przesłany na email.</legend>
             <div class="form-group">
-                <input id="IdUser" name="IdUser" required="required" type="hidden" value="2"/>
+                <input id="IdUser" name="IdUser" required="required" type="hidden" value="6"/>
                 <input type="number" class="form-control" id="Code" name="Code" required="required" placeholder="XXXXXXXXXX"/>
             </div>
             <button type="submit" class="btn btn-success">Aktywuj konto</button>
