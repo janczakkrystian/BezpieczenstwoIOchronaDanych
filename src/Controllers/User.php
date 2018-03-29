@@ -49,9 +49,9 @@
             \Tools\Session::clear('error');
         }
 
-        public function verificationCode(){
+        public function verificationAccount(){
             $model = $this->getModel('User');
-            $data = $model->verificationCode($_POST['IdUser'] , $_POST['Code']);
+            $data = $model->verificationAccount($_POST['IdUser'] , $_POST['Code']);
             if(isset($data['error'])) {
                 \Tools\Session::set('error', $data['error']);
                 $this->redirect("?controller=User&action=verification");

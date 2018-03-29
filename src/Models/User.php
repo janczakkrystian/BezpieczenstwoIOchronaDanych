@@ -53,7 +53,33 @@
             return $data;
         }
 
-        public function verificationCode($id , $code){
+        public function getCode($id){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($id === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try{
+                $stmt = $this->pdo->prepare('SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` , `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Code.'` FROM `'.\Config\Database\DBConfig::$tableUser.'` WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id');
+                $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
+                $stmt->execute();
+                $code = $stmt->fetchAll();
+                $code = $code[0][\Config\Database\DBConfig\User::$Code];
+                $data['code'] = $code;
+                $stmt->closeCursor();
+            }
+            catch(\PDOException $e){
+                $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            return $data;
+        }
+
+        public function verificationAccount($id , $code){
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
@@ -63,20 +89,18 @@
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
-            try{
-                $stmt = $this->pdo->prepare('SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` , `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Code.'` FROM `'.\Config\Database\DBConfig::$tableUser.'` WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id');
-                $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
-                $stmt->execute();
-                $codeFromBase = $stmt->fetchAll();
-                $stmt->closeCursor();
-            }
-            catch(\PDOException $e){
-                $data['error'] = \Config\Database\DBErrorName::$query;
+
+            $data = $this->getCode($id);
+            if(isset($data['error'])){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
+            if(!isset($data['code'])){
+                $data['error'] = \Config\Database\DBErrorName::$errorCode;
+                return $data;
+            }
+            $codeFromBase = $data['code'];
             if($codeFromBase && !empty($codeFromBase)){
-                //$data['code'] = $codeFromBase[0][\Config\Database\DBConfig\User::$Code];
-                $codeFromBase = $codeFromBase[0][\Config\Database\DBConfig\User::$Code];
 
                 if((int)$code === (int)$codeFromBase) {
                     try {
@@ -97,6 +121,7 @@
                     $data['error'] = \Config\Database\DBErrorName::$errorCode;
                     return $data;
                 }
+                
             }
             else{
                 $data['error'] = \Config\Database\DBErrorName::$nomatch;
