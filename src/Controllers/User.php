@@ -40,10 +40,10 @@
         public function verification(){
             $view = $this->getView('User');
             $data = null;
-            if(isset($data['error']))
-                \Tools\Session::set('error' , $data['error']);
-            if(isset($data['message']))
-                \Tools\Session::set('message' , $data['message']);
+            if(\Tools\Session::is('message'))
+                $data['message'] = \Tools\Session::get('message');
+            if(\Tools\Session::is('error'))
+                $data['error'] = \Tools\Session::get('error');
             $view->verification($data);
             \Tools\Session::clear('message');
             \Tools\Session::clear('error');
