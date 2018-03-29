@@ -11,7 +11,7 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}">Test</a></li>
+                <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=verification">Test</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right logowanie">
             </ul>

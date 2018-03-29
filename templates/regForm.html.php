@@ -1,7 +1,8 @@
 {extends file="templates/globalTemplate.html.php"}
 {block name="body"}
-<div class="col-lg-offset-3 col-lg-6 col-md-offset-3 col-md-6 col centered-form">
-    <form action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=register" method="POST">
+<div class="col-lg-offset-3 col-lg-6 col-md-offset-3 col-md-6 col">
+    <form  class="centered-form" action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=register" method="POST">
+        <legend class="text-center text-info">Zarejestruj się</legend>
         <div class="form-group">
             <label for="FirstName">Imie</label>
             <input type="text" class="form-control" id="FirstName" name="FirstName" placeholder="Imie" required>
@@ -23,7 +24,7 @@
             <input type="password" class="form-control" id="Password" name="Password" placeholder="Password" required>
         </div>
         <button type="submit" class="btn btn-success">Zarejestruj</button>
-        <a class="btn btn-primary" href="http://{$smarty.server.HTTP_HOST}{$subdir}">Zaloguj</a>
     </form>
+    <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}">Jeśli masz już konto, zaloguj się!</a></span>
 </div>
 {/block}

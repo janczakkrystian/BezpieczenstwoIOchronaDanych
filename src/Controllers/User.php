@@ -36,4 +36,16 @@
                 \Tools\Session::set('message' , $data['message']);
             $this->redirect("");
         }
+
+        public function verification(){
+            $view = $this->getView('User');
+            $data = null;
+            if(isset($data['error']))
+                \Tools\Session::set('error' , $data['error']);
+            if(isset($data['message']))
+                \Tools\Session::set('message' , $data['message']);
+            $view->verification($data);
+            \Tools\Session::clear('message');
+            \Tools\Session::clear('error');
+        }
     }

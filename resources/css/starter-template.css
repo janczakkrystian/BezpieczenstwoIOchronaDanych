@@ -1,0 +1,17 @@
+@CHARSET "UTF-8";
+body {
+  padding-top: 50px;
+}
+.margin{
+  margin-bottom: 105px;
+}
+.messages{
+  right: 0;
+  bottom: 0;
+  margin-bottom: 55px;
+  left: 0;
+  position: fixed;
+}
+.logowanie{
+  margin-right: 5px;
+}
