@@ -35,22 +35,23 @@
                 $mail->Port = \Config\Database\DBConfig::$PORTEmail;                                    // TCP port to connect to
 
                 //Adresses to
-                $mail->setFrom(\Config\Database\DBConfig::$userNameEmail, \Config\Database\DBConfig::$subjectEmail);
+                $mail->setFrom(\Config\Database\DBConfig::$fullNameEmail, \Config\Database\DBConfig::$subjectEmail);
                 $mail->addAddress($email, $lastname.' '.$firstName);     // Add a recipient
 
                 //Content
                 $mail->isHTML(true);                                  // Set email format to HTML
-                $mail->Subject = \Config\Database\DBConfig::$subjectEmail.$subject;
+                $mail->Subject = \Config\Database\DBConfig::$subjectEmail."".$subject;
                 $mail->Body    = $body;
                 $mail->AltBody = $body;
 
                 //Send email
                 $mail->send();
+                $mail->smtpClose();
             }
             catch(\Exception $e){
                 $data['error'] = \Config\Database\DBErrorName::$createMail;
             }
-
+            return $data;
         }
 
         public function register($FirstName , $LastName , $Email , $Login , $Password){
@@ -93,7 +94,10 @@
                 if(!$result)
                     $data['error'] = \Config\Database\DBErrorName::$noadd;
                 else {
-                    $this->sendByEmail("asd" , "asd" , "asd");
+                    $data = $this->sendByEmail($Email , $FirstName , $LastName , \Config\Database\DBMessageName::$veryficationCodeEmailSubject , \Config\Database\DBMessageName::$veryficationCodeEmailBody.$Code);
+                    if(isset($data['error'])){
+                        return $data;
+                    }
                     $data['message'] = \Config\Database\DBMessageName::$registerok;
                 }
                 $stmt->closeCursor();

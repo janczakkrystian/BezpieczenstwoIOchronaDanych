@@ -8,4 +8,6 @@ class DBMessageName{
     public static $updateok = "Rekord zaktualizowano w bazie danych.";
     public static $registerok = "Poprawnie zarejestrowano nowego użytkownika.";
     public static $veryficationOk = "Poprawnie aktywowano konto";
+    public static $veryficationCodeEmailSubject = "weryfikacja konta";
+    public static $veryficationCodeEmailBody = "Przesyłamy kod, w celu weryfikacji konta:";
 }
