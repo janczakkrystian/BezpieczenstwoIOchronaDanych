@@ -3,6 +3,7 @@
 	use \PDO;
 	abstract class Model{
 		protected $pdo;
+		protected $mail;
 		
 		public function  __construct() {
 			try {

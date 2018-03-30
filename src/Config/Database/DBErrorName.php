@@ -11,4 +11,5 @@ class DBErrorName{
     public static $nomatch = "Nie dopasowano rekordu w bazie!";
     public static $empty = "Podana wartość nie może być pusta!";
     public static $errorCode = "Podany kod nie jest poprawny!";
+    public static $createMail = "Błąd podczas tworzenia maila!";
 }

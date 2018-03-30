@@ -2,7 +2,56 @@
     namespace Models;
     use Config\Database\DBConfig;
     use \PDO;
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
     class User extends Model {
+
+        private function generateCode(){
+            return rand(1 , 1000000000) + 999999999;
+        }
+
+        private function sendByEmail($email, $firstName , $lastname , $subject , $body){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($email === null || $firstName === null || $lastname === null || $subject === null || $body === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+
+            //require '\Tools\PHPMailer\PHPMailerAutoload.php';
+            $mail = new PHPMailer(true);
+            try{
+                //Configuration my email account
+                $mail->SMTPDebug = 0;                                 // Enable verbose debug output
+                $mail->isSMTP();                                      // Set mailer to use SMTP
+                $mail->Host = \Config\Database\DBConfig::$hostEmail;  // Specify main and backup SMTP servers
+                $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                $mail->Username = \Config\Database\DBConfig::$userNameEmail;                 // SMTP username
+                $mail->Password = \Config\Database\DBConfig::$passwordEmail;                           // SMTP password
+                $mail->SMTPSecure = \Config\Database\DBConfig::$SMTPSecureEmail;                            // Enable TLS encryption, `ssl` also accepted
+                $mail->Port = \Config\Database\DBConfig::$PORTEmail;                                    // TCP port to connect to
+
+                //Adresses to
+                $mail->setFrom(\Config\Database\DBConfig::$userNameEmail, \Config\Database\DBConfig::$subjectEmail);
+                $mail->addAddress($email, $lastname.' '.$firstName);     // Add a recipient
+
+                //Content
+                $mail->isHTML(true);                                  // Set email format to HTML
+                $mail->Subject = \Config\Database\DBConfig::$subjectEmail.$subject;
+                $mail->Body    = $body;
+                $mail->AltBody = $body;
+
+                //Send email
+                $mail->send();
+            }
+            catch(\Exception $e){
+                $data['error'] = \Config\Database\DBErrorName::$createMail;
+            }
+
+        }
 
         public function register($FirstName , $LastName , $Email , $Login , $Password){
             $data = array();
@@ -16,7 +65,7 @@
             }
             $options = array('cost' => 6);
             $Password = password_hash($Password , PASSWORD_BCRYPT, $options);
-            $Code = rand(1 , 1000000000) + 999999999;
+            $Code = $this->generateCode();
             $IdStatus = 2;
             $TrialLimit = 2;
             $Active = false;
@@ -43,8 +92,10 @@
                 $result = $stmt->execute();
                 if(!$result)
                     $data['error'] = \Config\Database\DBErrorName::$noadd;
-                else
+                else {
+                    $this->sendByEmail("asd" , "asd" , "asd");
                     $data['message'] = \Config\Database\DBMessageName::$registerok;
+                }
                 $stmt->closeCursor();
             }
             catch(\PDOException $e){
@@ -70,6 +121,31 @@
                 $code = $stmt->fetchAll();
                 $code = $code[0][\Config\Database\DBConfig\User::$Code];
                 $data['code'] = $code;
+                $stmt->closeCursor();
+            }
+            catch(\PDOException $e){
+                $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            return $data;
+        }
+
+        private function setCode($id , $code){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($id === null || $code === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try{
+                $stmt = $this->pdo->prepare('UPDATE `'.\Config\Database\DBConfig::$tableUser.'` SET `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Code.'` = :code WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id');
+                $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
+                $stmt->bindValue(':code' , $code , PDO::PARAM_INT);
+                $result = $stmt->execute();
+                if(!$result) $data['error'] = \Config\Database\DBErrorName::$query;
                 $stmt->closeCursor();
             }
             catch(\PDOException $e){
@@ -192,7 +268,14 @@
                         }
                     }
                     if($trialLimit <= 0){
-                        //Wygenerowanie kodu
+                        $data = $this->setCode($id , $this->generateCode());
+                        if(isset($data['error'])){
+                            return $data;
+                        }
+                        $data = $this->setTrialLimit($id , 2);
+                        if(isset($data['error'])){
+                            return $data;
+                        }
                         $data['error'] = "Wygenerowano nowy kod.";
                     }
                     else
