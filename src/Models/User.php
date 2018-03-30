@@ -302,7 +302,11 @@
                         $stmt->closeCursor();
 
                         if($result) {
-                            
+                            $data = $this->setCode($id , $this->generateCode());
+                            if(isset($data['error'])){return $data;}
+                            $data = $this->setTrialLimit($id , 7);
+                            if(isset($data['error'])){return $data;}
+                            $data = array();
                             $data['message'] = \Config\Database\DBMessageName::$veryficationOk;
                         }
                         else $data['error'] = \Config\Database\DBErrorName::$query;
