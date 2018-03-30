@@ -54,6 +54,34 @@
             return $data;
         }
 
+        public function getUserData($id){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($id === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try{
+                $stmt = $this->pdo->prepare('
+                    SELECT * 
+                    FROM `'.\Config\Database\DBConfig::$tableUser.'` 
+                    WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` = :id');
+                $stmt->bindValue(':id' , $id , PDO::PARAM_INT);
+                $stmt->execute();
+                $user = $stmt->fetchAll();
+                $user = $user[0];
+                $data['user'] = $user;
+                $stmt->closeCursor();
+            }
+            catch(\PDOException $e){
+                $data['error'] = \Config\Database\DBErrorName::$query;
+            }
+            return $data;
+        }
+
         public function register($FirstName , $LastName , $Email , $Login , $Password){
             $data = array();
             if($this->pdo === null){
@@ -129,7 +157,6 @@
             }
             catch(\PDOException $e){
                 $data['error'] = \Config\Database\DBErrorName::$query;
-                return $data;
             }
             return $data;
         }
@@ -154,6 +181,27 @@
             }
             catch(\PDOException $e){
                 $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            return $data;
+        }
+
+        private function sendCodeByEmail($idUser){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($idUser === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            $data = $this->getUserData($idUser);
+            if(isset($data['error'])){
+                return $data;
+            }
+            $data = $this->sendByEmail($data['user'][\Config\Database\DBConfig\User::$Email] , $data['user'][\Config\Database\DBConfig\User::$FirstName] , $data['user'][\Config\Database\DBConfig\User::$LastName] , \Config\Database\DBMessageName::$veryficationCodeEmailSubject , \Config\Database\DBMessageName::$veryficationCodeEmailBody.$data['user'][\Config\Database\DBConfig\User::$Code]);
+            if(isset($data['error'])){
                 return $data;
             }
             return $data;
@@ -253,7 +301,10 @@
                         $result = $stmt->execute();
                         $stmt->closeCursor();
 
-                        if($result) $data['message'] = \Config\Database\DBMessageName::$veryficationOk;
+                        if($result) {
+                            
+                            $data['message'] = \Config\Database\DBMessageName::$veryficationOk;
+                        }
                         else $data['error'] = \Config\Database\DBErrorName::$query;
 
                     } catch (\PDOException $e) {
@@ -276,11 +327,15 @@
                         if(isset($data['error'])){
                             return $data;
                         }
+                        $data = $this->sendCodeByEmail($id);
+                        if(isset($data['error'])){
+                            return $data;
+                        }
                         $data = $this->setTrialLimit($id , 2);
                         if(isset($data['error'])){
                             return $data;
                         }
-                        $data['error'] = "Wygenerowano nowy kod.";
+                        $data['error'] = \Config\Database\DBMessageName::$generatedNewCode;
                     }
                     else
                         $data['error'] = \Config\Database\DBErrorName::$errorCode." Pozostało ".$trialLimit." prób.";

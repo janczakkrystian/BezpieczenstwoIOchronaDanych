@@ -10,4 +10,5 @@ class DBMessageName{
     public static $veryficationOk = "Poprawnie aktywowano konto";
     public static $veryficationCodeEmailSubject = "weryfikacja konta";
     public static $veryficationCodeEmailBody = "Przesyłamy kod, w celu weryfikacji konta:";
+    public static $generatedNewCode = 'Wygenerowano oraz wysłano nowy kod.';
 }
