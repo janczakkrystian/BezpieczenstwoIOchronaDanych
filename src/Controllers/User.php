@@ -22,19 +22,7 @@
                 \Tools\Session::set('error' , $data['error']);
             if(isset($data['message']))
                 \Tools\Session::set('message' , $data['message']);
-            /*
-            if($data['validate'] === true && (int)($data['active']) === (int)1 && !isset($data['error'])) {
-                $this->redirect("");
-            }
-            else if($data['validate'] === true && (int)($data['active']) === (int)0 && !isset($data['error'])){
-                $this->verification();
-            }
-            else {
-                $this->logForm();
-            }
-            */
-
-            if($data['validate'] === true) {
+            if(!isset($data['validate']) || $data['validate'] === true) {
                 $this->redirect("");
             }
             else {
@@ -84,7 +72,6 @@
             $data = $model->verificationAccount($_POST['IdUser'] , $_POST['Code']);
             if(isset($data['error'])) {
                 \Tools\Session::set('error', $data['error']);
-                //$this->redirect("?controller=User&action=verification");
             }
             else{\Tools\Session::set(\Tools\Access::$activeAccount , (int)1);}
             if(isset($data['message']))
@@ -101,20 +88,18 @@
             }
             if(isset($data['message']))
                 \Tools\Session::set('message' , $data['message']);
-            //$this->redirect("?controller=User&action=verification");
             $this->redirect("");
         }
 
         public function logout(){
             $model=$this->getModel('User');
             $model->logout();
-            //$this->logForm();
             $this->redirect("");
         }
 
         public function islogin(){
             if(\Tools\Access::islogin() !== true){
-                $this->logForm();
+                $this->redirect("");
             }
         }
     }
