@@ -4,53 +4,64 @@
     class User extends Controller {
 
         public function logForm(){
-            $view = $this->getView('User');
-            $data = null;
-            if(\Tools\Session::is('message'))
-                $data['message'] = \Tools\Session::get('message');
-            if(\Tools\Session::is('error'))
-                $data['error'] = \Tools\Session::get('error');
-            $view->logForm($data);
-            \Tools\Session::clear('message');
-            \Tools\Session::clear('error');
+            if(!\Tools\Access::islogin()) {
+                $view = $this->getView('User');
+                $data = null;
+                if (\Tools\Session::is('message'))
+                    $data['message'] = \Tools\Session::get('message');
+                if (\Tools\Session::is('error'))
+                    $data['error'] = \Tools\Session::get('error');
+                $view->logForm($data);
+                \Tools\Session::clear('message');
+                \Tools\Session::clear('error');
+            }
+            else $this->redirect("");
         }
 
         public function validatePassword(){
-            $model = $this->getModel('User');
-            $data = $model->validatePassword($_POST['Login'] , $_POST['Password']);
-            if(isset($data['error']))
-                \Tools\Session::set('error' , $data['error']);
-            if(isset($data['message']))
-                \Tools\Session::set('message' , $data['message']);
-            if(!isset($data['validate']) || $data['validate'] === true) {
-                $this->redirect("");
+            if(!\Tools\Access::islogin()) {
+                $model = $this->getModel('User');
+                $data = $model->validatePassword($_POST['Login'], $_POST['Password']);
+                if (isset($data['error']))
+                    \Tools\Session::set('error', $data['error']);
+                if (isset($data['message']))
+                    \Tools\Session::set('message', $data['message']);
+                if (!isset($data['validate']) || $data['validate'] === true) {
+                    $this->redirect("");
+                } else {
+                    $this->logForm();
+                }
             }
-            else {
-                $this->logForm();
-            }
+            else $this->redirect("");
         }
 
         public function regForm(){
-            $view = $this->getView('User');
-            $data = null;
-            if(\Tools\Session::is('message'))
-                $data['message'] = \Tools\Session::get('message');
-            if(\Tools\Session::is('error'))
-                $data['error'] = \Tools\Session::get('error');
-            $view->regForm($data);
-            \Tools\Session::clear('message');
-            \Tools\Session::clear('error');
+            if(!\Tools\Access::islogin()) {
+                $view = $this->getView('User');
+                $data = null;
+                if (\Tools\Session::is('message'))
+                    $data['message'] = \Tools\Session::get('message');
+                if (\Tools\Session::is('error'))
+                    $data['error'] = \Tools\Session::get('error');
+                $view->regForm($data);
+                \Tools\Session::clear('message');
+                \Tools\Session::clear('error');
+            }
+            else $this->redirect("");
         }
 
         public function register(){
-            $model = $this->getModel('User');
-            $data = $model->register($_POST['FirstName'] , $_POST['LastName'] , $_POST['Email'] , $_POST['Login'] , $_POST['Password']);
-            if(isset($data['error']))
-                \Tools\Session::set('error' , $data['error']);
-            if(isset($data['message']))
-                \Tools\Session::set('message' , $data['message']);
-            if(!isset($data['error'])){$this->redirect("");}
-            else $this->regForm($data);
+            if(!\Tools\Access::islogin()) {
+                $model = $this->getModel('User');
+                $data = $model->register($_POST['FirstName'] , $_POST['LastName'] , $_POST['Email'] , $_POST['Login'] , $_POST['Password']);
+                if(isset($data['error']))
+                    \Tools\Session::set('error' , $data['error']);
+                if(isset($data['message']))
+                    \Tools\Session::set('message' , $data['message']);
+                if(!isset($data['error'])){$this->redirect("");}
+                else $this->regForm($data);
+            }
+            else $this->redirect("");
         }
 
         public function verification(){
@@ -101,5 +112,31 @@
             if(\Tools\Access::islogin() !== true){
                 $this->redirect("");
             }
+        }
+
+        public function changePasswordForm(){
+            $this->islogin();
+            $view = $this->getView('User');
+            $data = null;
+            if(\Tools\Session::is('message'))
+                $data['message'] = \Tools\Session::get('message');
+            if(\Tools\Session::is('error'))
+                $data['error'] = \Tools\Session::get('error');
+            $view->changePasswordForm($data);
+            \Tools\Session::clear('message');
+            \Tools\Session::clear('error');
+        }
+
+        public function changedPassword(){
+            $this->islogin();
+            $model = $this->getModel('User');
+            if($_POST['NewPassword'] === $_POST['NewPasswordAgain'])
+                $data = $model->changePassword(\Tools\Session::get(\Tools\Access::$login) , $_POST['OldPassword'] , $_POST['NewPassword'] , true);
+            if(isset($data['error'])) {
+                \Tools\Session::set('error', $data['error']);
+            }
+            if(isset($data['message']))
+                \Tools\Session::set('message' , $data['message']);
+            $this->redirect("");
         }
     }

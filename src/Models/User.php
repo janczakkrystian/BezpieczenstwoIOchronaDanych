@@ -219,9 +219,9 @@
             if(strpos($available_sets, 'u') !== false)
                 $sets[] = 'ABCDEFGHJKMNPQRSTUVWXYZ';
             if(strpos($available_sets, 'd') !== false)
-                $sets[] = '23456789';
+                $sets[] = '0123456789';
             if(strpos($available_sets, 's') !== false)
-                $sets[] = '!@#$%&*?';
+                $sets[] = '!@#$%&*?[]|;:<>,.';
             $all = '';
             $password = '';
             foreach($sets as $set)
@@ -470,6 +470,48 @@
             return $data;
         }
 
+        public function changePassword($login , $oldpassword , $newpassword , $mustBeChanged = false){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($login === null || $oldpassword === null || $newpassword === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            $data = $this->findUserForLogin($login);
+            if(isset($data['error']))
+                return $data;
+            if(!isset($data['user']))
+                return $data;
+            $user = $data['user'];
+            if($oldpassword === $newpassword){
+                $data['error'] = "Nie można zmienić na to samo hasło!";
+                return $data;
+            }
+            if(password_verify($oldpassword , $user[\Config\Database\DBConfig\User::$Password])){
+                $data = $this->setPassword($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
+                if(isset($data['error']))
+                    return $data;
+                if($mustBeChanged)
+                {
+                    $data = $this->setTrialLimit($user[\Config\Database\DBConfig\User::$IdUser] , 7);
+                    if(isset($data['error']))
+                        return $data;
+                }
+                $data = array();
+                $data['message'] = \Config\Database\DBMessageName::$changePasswordOk;
+                $data['change'] = true;
+                \Tools\Session::set(\Tools\Access::$trialLimit , 7);
+                return $data;
+            }
+            else
+                $data['error'] = \Config\Database\DBErrorName::$errorChangePassword." ".$user[\Config\Database\DBConfig\User::$Login];
+            $data['change'] = false;
+            return $data;
+        }
+
         public function validatePassword($Login , $Password){
             $data = array();
             if($this->pdo === null){
@@ -502,7 +544,9 @@
                                                 $user[\Config\Database\DBConfig\User::$IdUser] ,
                                                 $user[\Config\Database\DBConfig\User::$Active] ,
                                                 $user[\Config\Database\DBConfig\User::$FirstName] ,
-                                                $user[\Config\Database\DBConfig\User::$LastName]);
+                                                $user[\Config\Database\DBConfig\User::$LastName],
+                                                $user[\Config\Database\DBConfig\User::$TrialLimit]
+                                );
                             if($data[\Config\Database\DBConfig\User::$TrialLimit > 0]) {
                                 $data = $this->setTrialLimit($id, 7);
                                 if (isset($data['error']))
@@ -559,7 +603,7 @@
                     );
                     $data['message'] = \Config\Database\DBMessageName::$generatedNewPassword;
                 }
-                else $data['message'] = "Silne hasło zostało wysłane na pocztę.";
+                else $data['message'] = \Config\Database\DBMessageName::$passwordWasSent;
             }
             return $data;
         }

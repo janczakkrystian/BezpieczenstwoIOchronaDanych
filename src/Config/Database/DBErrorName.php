@@ -13,4 +13,5 @@ class DBErrorName{
     public static $errorCode = "Podany kod nie jest poprawny!";
     public static $createMail = "Błąd podczas tworzenia maila!";
     public static $dataLoginWrong = "Niepoprawne dane logowania!";
+    public static $errorChangePassword = "Nie udało się zmienić hasła!";
 }

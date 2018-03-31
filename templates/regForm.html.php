@@ -20,8 +20,12 @@
             <input type="text" class="form-control" id="Login" name="Login" placeholder="Login" required>
         </div>
         <div class="form-group">
-            <label for="Password">Password</label>
-            <input type="password" class="form-control" id="Password" name="Password" placeholder="Password" required>
+            <label for="Password">Hasło</label>
+            <input type="password" class="form-control" id="Password" name="Password" placeholder="Hasło" required>
+        </div>
+        <div class="form-group">
+            <label for="PasswordAgain">Powtórz hasło</label>
+            <input type="password" class="form-control" id="PasswordAgain" name="PasswordAgain" placeholder="Powtórz hasło" required>
         </div>
         <button type="submit" class="btn btn-success">Zarejestruj</button>
     </form>

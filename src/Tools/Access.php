@@ -7,10 +7,11 @@ class Access extends Session {
     static $activeAccount = 'activeAccount';
     static $firstName = 'firstName';
     static $lastName = 'lastName';
+    static $trialLimit = 'trialLimit';
     private static $loginTime = 'logintime';
     private static $sessionTime = 300;
 
-    public static function login($login , $idUser , $activeAccount , $firstName , $lastName) {
+    public static function login($login , $idUser , $activeAccount , $firstName , $lastName , $trialLimit) {
         if(parent::check() === true)
         {
             parent::regenerate();
@@ -19,6 +20,7 @@ class Access extends Session {
             parent::set(self::$activeAccount, $activeAccount);
             parent::set(self::$firstName, $firstName);
             parent::set(self::$lastName, $lastName);
+            parent::set(self::$trialLimit, $trialLimit);
             parent::set(self::$loginTime, time());
         }
     }
@@ -27,6 +29,9 @@ class Access extends Session {
         parent::clear(self::$login);
         parent::clear(self::$idUser);
         parent::clear(self::$activeAccount);
+        parent::clear(self::$lastName);
+        parent::clear(self::$firstName);
+        parent::clear(self::$trialLimit);
         parent::clear(self::$loginTime);
         parent::regenerate();
     }

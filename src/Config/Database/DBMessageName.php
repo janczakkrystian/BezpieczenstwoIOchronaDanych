@@ -15,5 +15,7 @@ class DBMessageName{
     public static $loginOk = "Poprawnie się zalogowano!";
     public static $logoutOk = "Poprawnie się wylogowano!";
     public static $mustLogin = "Aby wykonać operację musisz się zalogować!";
-    public static $generatedNewPassword = "Zostało wygenerowane nowe hasło oraz wysłane na maila.";
+    public static $generatedNewPassword = "Zostało wygenerowane silne hasło oraz wysłane na maila.";
+    public static $passwordWasSent = "Silne hasło zostało już wysłane na maila.";
+    public static $changePasswordOk = "Hasło zostało zmienione!";
 }

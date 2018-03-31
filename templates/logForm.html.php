@@ -9,8 +9,8 @@
             <input type="text" class="form-control" id="Login" name="Login" placeholder="Login" required="required"/>
         </div>
         <div class="form-group">
-            <label for="Password">Password</label>
-            <input type="password" class="form-control" id="Password" name="Password" placeholder="Password" required="required"/>
+            <label for="Password">Hasło</label>
+            <input type="password" class="form-control" id="Password" name="Password" placeholder="Hasło" required="required"/>
         </div>
         <button type="submit" class="btn btn-success">Zaloguj</button>
     </form>
