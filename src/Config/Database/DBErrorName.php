@@ -15,4 +15,6 @@ class DBErrorName{
     public static $dataLoginWrong = "Niepoprawne dane logowania!";
     public static $errorChangePassword = "Nie udało się zmienić hasła!";
     public static $theSamePassword = "Nie można zmienić na to samo hasło!";
+    public static $notTheSamePassword = "Hasła nie są takie same.";
+    public static $passwordWasSet = "To hasło było już użyte.";
 }

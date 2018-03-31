@@ -4,6 +4,7 @@
     use \PDO;
     use PHPMailer\PHPMailer\PHPMailer;
     use PHPMailer\PHPMailer\Exception;
+    use Models\PasswordHistory;
     class User extends Model {
 
         private function generateCode(){
@@ -470,36 +471,71 @@
             return $data;
         }
 
-        public function changePassword($login , $oldpassword , $newpassword , $mustBeChanged = false){
+        public function changePassword($login , $oldpassword , $newpassword , $newPasswordAgain , $mustBeChanged = false){
+            //Dopisać sprawdzenie historii haseł!!
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if($login === null || $oldpassword === null || $newpassword === null){
+            if($login === null || $oldpassword === null || $newpassword === null || $newPasswordAgain === null){
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
+
+            //Sprawdzamy, czy nowe hasło zostało dobrze podane
+            if($newpassword != $newPasswordAgain){
+                $data['error'] = \Config\Database\DBErrorName::$notTheSamePassword;
+                return $data;
+            }
+
+            //Wczytujemy dane użytkownika, na których będziemy operować.
             $data = $this->findUserForLogin($login);
             if(isset($data['error']))
                 return $data;
             if(!isset($data['user']))
                 return $data;
             $user = $data['user'];
+
+            //Sprawdzamy, czy stare hasło jest poprawnym obecnym hasłem konta.
             if(password_verify($oldpassword , $user[\Config\Database\DBConfig\User::$Password])){
+
+                //Sprawdzenie, czy nowe hasło to nie poprzednie hasło.
                 if($oldpassword === $newpassword){
                     $data['error'] = \Config\Database\DBErrorName::$theSamePassword;
                     return $data;
                 }
+
+                //Sprawdzenie, czy nowe hasło nie było wcześniej używane.
+                $data = new \Models\PasswordHistory;
+                $data = $data->checkPassword($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
+                if(isset($data['error']))
+                    return $data;
+                if(!isset($data['checkPassword']) || (boolval($data['checkPassword'])) === false){
+                    $data['error'] = \Config\Database\DBErrorName::$passwordWasSet;
+                    return $data;
+                }
+
+                //Ustawienie nowego hasła dla użytkownika.
                 $data = $this->setPassword($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
                 if(isset($data['error']))
                     return $data;
+
+                //Dodanie nowego hasła do historii haseł.
+                $data = new \Models\PasswordHistory;
+                $data = $data->addNewPasswordForUser($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
+                if(isset($data['error']))
+                    return $data;
+
+                //W przypadku, gdy hasło zostało wymuszone, ustawiamy poprawny limit prób.
                 if($mustBeChanged)
                 {
                     $data = $this->setTrialLimit($user[\Config\Database\DBConfig\User::$IdUser] , 7);
                     if(isset($data['error']))
                         return $data;
                 }
+
+                //Hasło ustawiono poprawnie.
                 $data = array();
                 $data['message'] = \Config\Database\DBMessageName::$changePasswordOk;
                 $data['change'] = true;

@@ -130,10 +130,10 @@
         public function changedPassword(){
             $this->islogin();
             $model = $this->getModel('User');
-            if($_POST['NewPassword'] === $_POST['NewPasswordAgain'])
-                $data = $model->changePassword(\Tools\Session::get(\Tools\Access::$login) , $_POST['OldPassword'] , $_POST['NewPassword'] , true);
+            $data = $model->changePassword(\Tools\Session::get(\Tools\Access::$login) , $_POST['OldPassword'] , $_POST['NewPassword'] , $_POST['NewPasswordAgain'] , (int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2));
             if(isset($data['error'])) {
                 \Tools\Session::set('error', $data['error']);
+                $this->redirect("?controller=User&action=changePasswordForm");
             }
             if(isset($data['message']))
                 \Tools\Session::set('message' , $data['message']);
