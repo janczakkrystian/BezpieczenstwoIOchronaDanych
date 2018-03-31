@@ -2,7 +2,7 @@
 	namespace Tools;
 	
 	class Session{
-		private static $regenerateTime = 60;
+		private static $regenerateTime = 300;
 		private static $regenrateRequest = 10;
 
 		private static $active = 'active';

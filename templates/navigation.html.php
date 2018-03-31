@@ -11,9 +11,12 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=verification">Test</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right logowanie">
+                {if isset($smarty.session.user)}
+                <li><a>Login: {$smarty.session.user}</a></li>
+                <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=logout">Wyloguj się</a></li>
+                {/if}
             </ul>
         </div>
     </div>

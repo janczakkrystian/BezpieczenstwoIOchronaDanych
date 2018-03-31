@@ -11,4 +11,8 @@ class DBMessageName{
     public static $veryficationCodeEmailSubject = "weryfikacja konta";
     public static $veryficationCodeEmailBody = "Przesyłamy kod, w celu weryfikacji konta:";
     public static $generatedNewCode = 'Wygenerowano oraz wysłano nowy kod.';
+    public static $sendAgainCode = "Wysłano ponownie kod.";
+    public static $loginOk = "Poprawnie się zalogowano!";
+    public static $logoutOk = "Poprawnie się wylogowano!";
+    public static $mustLogin = "Aby wykonać operację musisz się zalogować!";
 }

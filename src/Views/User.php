@@ -1,6 +1,9 @@
 <?php
     namespace Views;
 
+    use Tools\Access;
+    use Tools\Session;
+
     class User extends View {
 
         public function logForm($data){
@@ -24,6 +27,6 @@
                 $this->set('message' , $data['message']);
             if(isset($data['error']))
                 $this->set('error' , $data['error']);
-            $this->render('verification');
+            $this->render('verificationForm');
         }
     }

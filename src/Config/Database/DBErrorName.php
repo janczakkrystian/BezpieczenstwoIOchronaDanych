@@ -12,4 +12,5 @@ class DBErrorName{
     public static $empty = "Podana wartość nie może być pusta!";
     public static $errorCode = "Podany kod nie jest poprawny!";
     public static $createMail = "Błąd podczas tworzenia maila!";
+    public static $dataLoginWrong = "Niepoprawne dane logowania!";
 }

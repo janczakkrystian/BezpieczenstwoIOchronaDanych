@@ -7,7 +7,7 @@
     class User extends Model {
 
         private function generateCode(){
-            return rand(1 , 1000000000) + 999999999;
+            return rand(1 , 900000000) + 99999999;
         }
 
         private function sendByEmail($email, $firstName , $lastname , $subject , $body){
@@ -186,7 +186,7 @@
             return $data;
         }
 
-        private function sendCodeByEmail($idUser){
+        public function sendCodeByEmail($idUser){
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
@@ -204,6 +204,7 @@
             if(isset($data['error'])){
                 return $data;
             }
+            $data['message'] = \Config\Database\DBMessageName::$sendAgainCode;
             return $data;
         }
 
@@ -365,15 +366,25 @@
                 return $data;
             }
             try{
-                $stmt = $this->pdo->prepare('SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Password.'` FROM `'.\Config\Database\DBConfig::$tableUser.'` WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Login.'` = :login');
+                $stmt = $this->pdo->prepare('
+                    SELECT `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$IdUser.'` , 
+                            `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Active.'` , 
+                            `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Password.'`,
+                            `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$FirstName.'`,
+                            `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$LastName.'`  
+                    FROM `'.\Config\Database\DBConfig::$tableUser.'` 
+                    WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Login.'` = :login');
                 $stmt->bindValue(':login' , $Login , PDO::PARAM_STR);
                 $stmt->execute();
-                $code = $stmt->fetchAll();
-                if($code && !empty($code)){
-                    if($code[0] && !empty($code[0])){
-                        if($code[0][\Config\Database\DBConfig\User::$Password] && !empty($code[0][\Config\Database\DBConfig\User::$Password])){
-                            if(password_verify($Password , $code[0][\Config\Database\DBConfig\User::$Password])){
+                $user = $stmt->fetchAll();
+                if($user && !empty($user)){
+                    if($user[0] && !empty($user[0])){
+                        if($user[0][\Config\Database\DBConfig\User::$Password] && !empty($user[0][\Config\Database\DBConfig\User::$Password])){
+                            if(password_verify($Password , $user[0][\Config\Database\DBConfig\User::$Password])){
                                 $data['validate'] = true;
+                                $data['message'] = \Config\Database\DBMessageName::$loginOk;
+                                $data['active'] = $user[0][\Config\Database\DBConfig\User::$Active];
+                                \Tools\Access::login($Login , $user[0][\Config\Database\DBConfig\User::$IdUser] , $user[0][\Config\Database\DBConfig\User::$Active] , $user[0][\Config\Database\DBConfig\User::$FirstName] , $user[0][\Config\Database\DBConfig\User::$LastName]);
                             }
                             else $data['validate'] = false;
                         }
@@ -386,9 +397,18 @@
                 $stmt->closeCursor();
             }
             catch(\PDOException $e){
+                $data['validate'] = false;
                 $data['error'] = \Config\Database\DBErrorName::$query;
             }
+            if(!isset($data['validate']) || $data['validate'] === false){
+                $data['validate'] = false;
+                $data['error'] = \Config\Database\DBErrorName::$dataLoginWrong;
+            }
             return $data;
+        }
+
+        public function logout(){
+            \Tools\Access::logout();
         }
 
     }
