@@ -486,11 +486,11 @@
             if(!isset($data['user']))
                 return $data;
             $user = $data['user'];
-            if($oldpassword === $newpassword){
-                $data['error'] = "Nie można zmienić na to samo hasło!";
-                return $data;
-            }
             if(password_verify($oldpassword , $user[\Config\Database\DBConfig\User::$Password])){
+                if($oldpassword === $newpassword){
+                    $data['error'] = \Config\Database\DBErrorName::$theSamePassword;
+                    return $data;
+                }
                 $data = $this->setPassword($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
                 if(isset($data['error']))
                     return $data;
@@ -507,7 +507,7 @@
                 return $data;
             }
             else
-                $data['error'] = \Config\Database\DBErrorName::$errorChangePassword." ".$user[\Config\Database\DBConfig\User::$Login];
+                $data['error'] = \Config\Database\DBErrorName::$errorChangePassword;
             $data['change'] = false;
             return $data;
         }
