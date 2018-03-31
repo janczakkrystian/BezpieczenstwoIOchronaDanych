@@ -210,8 +210,30 @@
             return $data;
         }
 
-        private function generatePassword(){
-            return bin2hex(openssl_random_pseudo_bytes(4));
+        public function generatePassword(){
+            $length = 20;
+            $available_sets = 'luds';
+            $sets = array();
+            if(strpos($available_sets, 'l') !== false)
+                $sets[] = 'abcdefghjkmnpqrstuvwxyz';
+            if(strpos($available_sets, 'u') !== false)
+                $sets[] = 'ABCDEFGHJKMNPQRSTUVWXYZ';
+            if(strpos($available_sets, 'd') !== false)
+                $sets[] = '23456789';
+            if(strpos($available_sets, 's') !== false)
+                $sets[] = '!@#$%&*?';
+            $all = '';
+            $password = '';
+            foreach($sets as $set)
+            {
+                $password .= $set[array_rand(str_split($set))];
+                $all .= $set;
+            }
+            $all = str_split($all);
+            for($i = 0; $i < $length - count($sets); $i++)
+                $password .= $all[array_rand($all)];
+            $password = str_shuffle($password);
+            return $password;
         }
 
         private function setPassword($id , $password){
@@ -481,6 +503,11 @@
                                                 $user[\Config\Database\DBConfig\User::$Active] ,
                                                 $user[\Config\Database\DBConfig\User::$FirstName] ,
                                                 $user[\Config\Database\DBConfig\User::$LastName]);
+                            if($data[\Config\Database\DBConfig\User::$TrialLimit > 0]) {
+                                $data = $this->setTrialLimit($id, 7);
+                                if (isset($data['error']))
+                                    return $data;
+                            }
                         }
                         else $data['validate'] = false;
                     }
@@ -509,7 +536,11 @@
                         return $data;
                     }
                 }
-                else if($trialLimit === 0){
+                else if($trialLimit <= 0 && $trialLimit >= -1){
+                    $data = $this->setTrialLimit($id , -2);
+                    if(isset($data['error']))
+                        return $data;
+
                     $generatedPassword = $this->generatePassword();
                     $data = $this->setPassword($id , $generatedPassword);
                     if(isset($data['error']))
@@ -519,20 +550,16 @@
                                                 $user[\Config\Database\DBConfig\User::$FirstName] ,
                                                 $user[\Config\Database\DBConfig\User::$LastName] ,
                                                 \Config\Database\DBConfig::$subjectEmail ,
-                                                "Zostało wygenerowane nowe hasło: ".$generatedPassword.
-                                                " \n Silne hasło zostało wygenerowane z dwóch powodów: 
-                                                \n - zbyt duża liczba pomyłek przy wpisywaniu hasła do konta 
-                                                \n - próba kradzieży konta metodą brute force.
-                                                \n Po zalogowaniu się nowym hasłem, zostaniesz poproszony o zmienienie go na swoje.
-                                                \n Za utrudnienia przepraszamy."
+                                                nl2br('Zostało wygenerowane nowe hasło: "<b>'.$generatedPassword.'"</b>.'
+                                                .PHP_EOL." Silne hasło zostało wygenerowane z dwóch powodów:"
+                                                .PHP_EOL." - zbyt duża liczba pomyłek przy wpisywaniu hasła do konta"
+                                                .PHP_EOL." - próba kradzieży konta metodą brute force."
+                                                .PHP_EOL." Po zalogowaniu się nowym hasłem, zostaniesz poproszony o zmienienie go na swoje."
+                                                .PHP_EOL." Za utrudnienia przepraszamy.")
                     );
                     $data['message'] = \Config\Database\DBMessageName::$generatedNewPassword;
-
-                    $data = $this->setTrialLimit($id , -2);
-                    if(isset($data['error']))
-                        return $data;
                 }
-
+                else $data['message'] = "Silne hasło zostało wysłane na pocztę.";
             }
             return $data;
         }
