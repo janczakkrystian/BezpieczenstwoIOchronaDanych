@@ -559,23 +559,36 @@
                 return $data;
             }
 
+            //Znajdz dane użytkownika po podanym loginie.
             $data = $this->findUserForLogin($Login);
             if(isset($data['error']))
                 return $data;
             else if(!isset($data['user'])){
-                $data['error'] = \Config\Database\DBErrorName::$empty;
+                $data['error'] = \Config\Database\DBErrorName::$dataLoginWrong;
                 return $data;
             }
+
+            //Przypisz na stałe dane użytkownika do zmiennej $user, ponieważ później będą wykorzystywane.
             $user = $data['user'];
+            //Przypisz id użytkownika do zmiennej $id, ponieważ będzie wielokrotnie potrzebne w dalszej części kodu.
             $id = $user[\Config\Database\DBConfig\User::$IdUser];
 
             if($user && !empty($user)){
                 if($user && !empty($user)){
                     if($user[\Config\Database\DBConfig\User::$Password] && !empty($user[\Config\Database\DBConfig\User::$Password])){
                         if(password_verify($Password , $user[\Config\Database\DBConfig\User::$Password])){
+
+
+                            if($user[\Config\Database\DBConfig\User::$TrialLimit] >= 0) {
+                                $data = $this->setTrialLimit($id, 7);
+                                if (isset($data['error']))
+                                    return $data;
+                            }
                             $data['validate'] = true;
                             $data['message'] = \Config\Database\DBMessageName::$loginOk;
                             $data['active'] = $user[\Config\Database\DBConfig\User::$Active];
+
+                            //Ustaw logowanie w sesji, wraz z danymi konta.
                             \Tools\Access::login($Login ,
                                                 $user[\Config\Database\DBConfig\User::$IdUser] ,
                                                 $user[\Config\Database\DBConfig\User::$Active] ,
@@ -583,11 +596,7 @@
                                                 $user[\Config\Database\DBConfig\User::$LastName],
                                                 $user[\Config\Database\DBConfig\User::$TrialLimit]
                                 );
-                            if($data[\Config\Database\DBConfig\User::$TrialLimit > 0]) {
-                                $data = $this->setTrialLimit($id, 7);
-                                if (isset($data['error']))
-                                    return $data;
-                            }
+
                         }
                         else $data['validate'] = false;
                     }
@@ -597,10 +606,10 @@
             }
             else $data['validate'] = false;
 
+            //Jeśli logowanie nie powiodło się.
             if(!isset($data['validate']) || $data['validate'] === false){
-                $data['validate'] = false;
-                $data['error'] = \Config\Database\DBErrorName::$dataLoginWrong;
 
+                //Pobierz wartość ilości prób logowania.
                 $data = $this->showTrialLimit($id);
                 if(isset($data['error']))
                     return $data;
@@ -609,6 +618,8 @@
                     return $data;
                 }
                 $trialLimit = $data['trialLimit'];
+
+                //Jeśli wartość ilości prób większa od 0 to ustaw wartość mniejszą o 1.
                 if($trialLimit > 0) {
                     $trialLimit = $trialLimit - 1;
                     $data = $this->setTrialLimit($id , $trialLimit);
@@ -616,30 +627,42 @@
                         return $data;
                     }
                 }
+
+                //Jeśli skończyły się próby logowania, to:
                 else if($trialLimit <= 0 && $trialLimit >= -1){
+
+                    //Ustaw wartość prób logowania na -2.
                     $data = $this->setTrialLimit($id , -2);
                     if(isset($data['error']))
                         return $data;
 
+                    //Wygeneruj nowe silne hasło dla konta.
                     $generatedPassword = $this->generatePassword();
                     $data = $this->setPassword($id , $generatedPassword);
                     if(isset($data['error']))
                         return $data;
 
+                    //Wyślij wiadomością email o informacji co się stało wraz z hasłem.
                     $data = $this->sendByEmail($user[\Config\Database\DBConfig\User::$Email] ,
                                                 $user[\Config\Database\DBConfig\User::$FirstName] ,
                                                 $user[\Config\Database\DBConfig\User::$LastName] ,
                                                 \Config\Database\DBConfig::$subjectEmail ,
                                                 nl2br('Zostało wygenerowane nowe hasło: "<b>'.$generatedPassword.'"</b>.'
-                                                .PHP_EOL." Silne hasło zostało wygenerowane z dwóch powodów:"
-                                                .PHP_EOL." - zbyt duża liczba pomyłek przy wpisywaniu hasła do konta"
-                                                .PHP_EOL." - próba kradzieży konta metodą brute force."
-                                                .PHP_EOL." Po zalogowaniu się nowym hasłem, zostaniesz poproszony o zmienienie go na swoje."
-                                                .PHP_EOL." Za utrudnienia przepraszamy.")
+                                                .PHP_EOL.' Silne hasło zostało wygenerowane z dwóch powodów:'
+                                                .PHP_EOL.' - zbyt duża liczba pomyłek przy wpisywaniu hasła do konta'
+                                                .PHP_EOL.' - próba kradzieży konta metodą brute force.'
+                                                .PHP_EOL.' Po zalogowaniu się nowym hasłem, zostaniesz poproszony o zmienienie go na swoje.'
+                                                .PHP_EOL.' Za utrudnienia przepraszamy.')
                     );
+                    //Ustaw wiadomość dla użytkownika o wygenerowaniu nowego hasła.
                     $data['message'] = \Config\Database\DBMessageName::$generatedNewPassword;
                 }
+                //Jeśli hasło dalej jest niepoprawne, a zostało już wysłane na email nowe silne hasło, to poinformuj użytkownika.
                 else $data['message'] = \Config\Database\DBMessageName::$passwordWasSent;
+
+                //Ustawienie wartości oraz informacji o niepowodzeniu podczas logowania.
+                $data['validate'] = false;
+                $data['error'] = \Config\Database\DBErrorName::$dataLoginWrong;
             }
             return $data;
         }
