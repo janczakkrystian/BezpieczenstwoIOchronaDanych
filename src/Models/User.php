@@ -211,8 +211,7 @@
             return $data;
         }
 
-        public function generatePassword(){
-            $length = 20;
+        public function generatePassword($length = 20){
             $available_sets = 'luds';
             $sets = array();
             if(strpos($available_sets, 'l') !== false)
@@ -267,6 +266,38 @@
             return $data;
         }
 
+        public function sendCodeByEmailForLogin($login){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($login === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+
+            //Pobranie danych użytkownika, wyszukanego za pomocą loginu
+            $data = $this->findUserForLogin($login);
+            if(isset($data['error']))
+                return $data;
+            if(!isset($data['user'])) {
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+
+            //Przypisanie danych użytkownika do zmiennej $user.
+            $user = $data['user'];
+
+            //Wysłanie maila z kodem przy pomocy id użytkownika.
+            $data = $this->sendCodeByEmail($user[\Config\Database\DBConfig\User::$IdUser]);
+            if(isset($data['error']))
+                return $data;
+
+            $data['message'] = \Config\Database\DBMessageName::$sendCodeEmail;
+            return $data;
+        }
+
         public function sendCodeByEmail($idUser){
             $data = array();
             if($this->pdo === null){
@@ -277,10 +308,19 @@
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
+
+            //Wygenerowanie nowego kodu
+            $data = $this->setCode($idUser , $this->generateCode());
+            if(isset($data['error']))
+                return $data;
+
+            //Pobranie danych użytkownika za pomocą jego id
             $data = $this->getUserData($idUser);
             if(isset($data['error'])){
                 return $data;
             }
+
+            //Wysłanie kodu mailem.
             $data = $this->sendByEmail($data['user'][\Config\Database\DBConfig\User::$Email] ,
                                         $data['user'][\Config\Database\DBConfig\User::$FirstName] ,
                                         $data['user'][\Config\Database\DBConfig\User::$LastName] ,
@@ -654,6 +694,9 @@
                                                 .PHP_EOL.' Po zalogowaniu się nowym hasłem, zostaniesz poproszony o zmienienie go na swoje.'
                                                 .PHP_EOL.' Za utrudnienia przepraszamy.')
                     );
+                    if(isset($data['error']))
+                        return $data;
+
                     //Ustaw wiadomość dla użytkownika o wygenerowaniu nowego hasła.
                     $data['message'] = \Config\Database\DBMessageName::$generatedNewPassword;
                 }
@@ -664,6 +707,71 @@
                 $data['validate'] = false;
                 $data['error'] = \Config\Database\DBErrorName::$dataLoginWrong;
             }
+            return $data;
+        }
+
+        public function sendGeneratedPasswordByEmail($login , $code){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($login === null || $code === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty." Tutaj 2.";
+                return $data;
+            }
+
+            //Pobranie danych użytkownika za pomocą loginu.
+            $data = $this->findUserForLogin($login);
+            if(isset($data['error']))
+                return $data;
+            if(!isset($data['user'])){
+                $data['error'] = \Config\Database\DBErrorName::$empty." Tutaj 3.";
+                return $data;
+            }
+
+            //Przypisanie danych użytkownika do zmiennej $user, ponieważ dalej będą potrzebne
+            $user = $data['user'];
+
+            //Pobranie kodu od użytkownika
+            $data = $this->getCode($user[\Config\Database\DBConfig\User::$IdUser]);
+            if(isset($data['error']))
+                return $data;
+
+            //Sprawdzenie podanego kodu
+            if($code !== $user[\Config\Database\DBConfig\User::$Code]){
+                $data['error'] = \Config\Database\DBErrorName::$errorCode;
+                return $data;
+            }
+
+            //Wygenerowanie nowego hasła
+            $newPassword = $this->generatePassword();
+
+            //Ustawienie nowego hasła dla użytkownika
+            $data = $this->setPassword($user[\Config\Database\DBConfig\User::$IdUser] , $newPassword);
+            if(isset($data['error']))
+                return $data;
+
+            //Wysłanie nowego hasła mailem
+            $data = $this->sendByEmail($user[\Config\Database\DBConfig\User::$Email] ,
+                $user[\Config\Database\DBConfig\User::$FirstName] ,
+                $user[\Config\Database\DBConfig\User::$LastName] ,
+                \Config\Database\DBConfig::$subjectEmail ,
+                nl2br('Zostało wygenerowane nowe hasło: "<b>'.$newPassword.'"</b>.'
+                    .PHP_EOL.' Po zalogowaniu się nowym hasłem, zostaniesz poproszony o zmienienie go na swoje.'
+                    .PHP_EOL.' Za utrudnienia przepraszamy.')
+            );
+            if(isset($data['error']))
+                return $data;
+
+            //Zmiana licznika prób
+            $data = $this->setTrialLimit(user[\Config\Database\DBConfig\User::$IdUser] , -2);
+            if(isset($data['error']))
+                return $data;
+
+            //Ustaw wiadomość dla użytkownika o wygenerowaniu nowego hasła.
+            $data['message'] = \Config\Database\DBMessageName::$generatedNewPassword;
+
             return $data;
         }
 

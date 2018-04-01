@@ -14,6 +14,8 @@
         </div>
         <button type="submit" class="btn btn-success">Zaloguj</button>
     </form>
+    <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=remindPasswordForLoginForm">Jeśli zapomniałeś hasło, kliknij!</a></span>
+    </br>
     <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=regForm">Jeśli nie masz konta, zarejestruj się!</a></span>
 </div>
 </div>

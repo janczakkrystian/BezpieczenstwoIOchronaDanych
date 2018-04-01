@@ -9,8 +9,9 @@ class DBMessageName{
     public static $registerok = "Poprawnie zarejestrowano nowego użytkownika.";
     public static $veryficationOk = "Poprawnie aktywowano konto";
     public static $veryficationCodeEmailSubject = "weryfikacja konta";
-    public static $veryficationCodeEmailBody = "Przesyłamy kod, w celu weryfikacji konta:";
+    public static $veryficationCodeEmailBody = "Przesyłamy kod, w celu weryfikacji:";
     public static $generatedNewCode = 'Wygenerowano oraz wysłano nowy kod.';
+    public static $sendCodeEmail = "Wysłano kod na maila.";
     public static $sendAgainCode = "Wysłano ponownie kod.";
     public static $loginOk = "Poprawnie się zalogowano!";
     public static $logoutOk = "Poprawnie się wylogowano!";

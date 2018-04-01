@@ -53,7 +53,12 @@
         public function register(){
             if(!\Tools\Access::islogin()) {
                 $model = $this->getModel('User');
-                $data = $model->register($_POST['FirstName'] , $_POST['LastName'] , $_POST['Email'] , $_POST['Login'] , $_POST['Password']);
+                $data = $model->register(
+                    $_POST['FirstName'] ,
+                    $_POST['LastName'] ,
+                    $_POST['Email'] ,
+                    $_POST['Login'] ,
+                    $_POST['Password']);
                 if(isset($data['error']))
                     \Tools\Session::set('error' , $data['error']);
                 if(isset($data['message']))
@@ -130,13 +135,80 @@
         public function changedPassword(){
             $this->islogin();
             $model = $this->getModel('User');
-            $data = $model->changePassword(\Tools\Session::get(\Tools\Access::$login) , $_POST['OldPassword'] , $_POST['NewPassword'] , $_POST['NewPasswordAgain'] , (int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2));
+            $data = $model->changePassword(
+                \Tools\Session::get(\Tools\Access::$login) ,
+                $_POST['OldPassword'] ,
+                $_POST['NewPassword'] ,
+                $_POST['NewPasswordAgain'] ,
+                (int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2));
             if(isset($data['error'])) {
                 \Tools\Session::set('error', $data['error']);
                 $this->redirect("?controller=User&action=changePasswordForm");
             }
             if(isset($data['message']))
                 \Tools\Session::set('message' , $data['message']);
+            $this->redirect("");
+        }
+
+        public function remindPasswordForLoginForm(){
+            if(!\Tools\Access::islogin()) {
+                $view = $this->getView('User');
+                $data = null;
+                if (\Tools\Session::is('message'))
+                    $data['message'] = \Tools\Session::get('message');
+                if (\Tools\Session::is('error'))
+                    $data['error'] = \Tools\Session::get('error');
+                $view->remindPasswordForLoginForm($data);
+                \Tools\Session::clear('message');
+                \Tools\Session::clear('error');
+            }
+            else $this->redirect("");
+        }
+
+        public function remindPasswordForm(){
+            if(!\Tools\Access::islogin()) {
+                $view = $this->getView('User');
+                $data = null;
+                if(!isset($_POST['Login'])){
+                    $data['error'] = \Config\Database\DBErrorName::$empty;
+                    $view->logForm($data);
+                }
+                else $data['login'] = $_POST['Login'];
+
+                //Wysłanie kodu mailem
+                $model = $this->getModel('User');
+                $sendCode = $model->sendCodeByEmailForLogin($_POST['Login']);
+
+                $view = $this->getView('User');
+                if (\Tools\Session::is('message'))
+                    $data['message'] = \Tools\Session::get('message');
+                else if(isset($sendCode['message'])) $data['message'] = $sendCode['message'];
+                if (\Tools\Session::is('error'))
+                    $data['error'] = \Tools\Session::get('error');
+                else if(isset($sendCode['error']))$data['error'] = $sendCode['error'];
+                $view->remindPasswordForm($data);
+                \Tools\Session::clear('message');
+                \Tools\Session::clear('error');
+            }
+            else $this->redirect("");
+        }
+
+        public function sendPasswordByEmail(){
+            if(!\Tools\Access::islogin()) {
+                if(isset($_POST['Login']) && isset($_POST['Code'])){
+                    $model = $this->getModel('User');
+                    $data = $model->sendGeneratedPasswordByEmail($_POST['Login'] , $_POST['Code']);
+                    if(isset($data['error'])) {
+                        \Tools\Session::set('error', $data['error']);
+                        $this->redirect("?controller=User&action=remindPasswordForm");
+                    }
+                    if(isset($data['message']))
+                        \Tools\Session::set('message' , $data['message']);
+                }
+                else{
+                    \Tools\Session::set('error' , \Config\Database\DBErrorName::$empty." Tutaj.");
+                }
+            }
             $this->redirect("");
         }
     }
