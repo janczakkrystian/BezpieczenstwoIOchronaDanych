@@ -590,8 +590,15 @@
             return $data;
         }
 
-        public function validatePassword($Login , $Password){
+        public function validatePassword($data){
+            $Login = $data[0];
+            $Password = $data[1];
+            $Verification = $data[2];
             $data = array();
+            if(!isset($Verification) || $Verification !== true){
+                $data['error'] = "Nie potwierdzono czynności!";
+                return $data;
+            }
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;

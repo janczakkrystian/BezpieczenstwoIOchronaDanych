@@ -12,11 +12,15 @@ class Verification extends View {
         if(isset($data['error']))
             $this->set('error' , $data['error']);
 
-        $this->set('IdUser' , $data['IdUser']);
+        if(isset($data['IdUser']))
+            $this->set('IdUser' , $data['IdUser']);
         $this->render('verificationForm');
-        $action['Model'] = $data['Model'];
-        $action['Action'] = $data['Action'];
-        $action['Data'] = $data['Data'];
+        if(isset($data['Model']))
+            $action['Model'] = $data['Model'];
+        if(isset($data['Action']))
+            $action['Action'] = $data['Action'];
+        if(isset($data['Data']))
+            $action['Data'] = $data['Data'];
         \Tools\Session::set('action' , $action);
     }
 

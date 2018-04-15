@@ -3,34 +3,51 @@ namespace Controllers;
 
 class Verification extends Controller {
 
-    public function verificationForm($data){
+    public function verificationForm($id = null){
         $view = $this->getView('Verification');
-        //$data = null;
+        $data = null;
+        if($id !== null){
+            $data['Model'] = $id[0];
+            $data['Action'] = $id[1];
+            $data['Data'] = array();
+            $i = 0;
+            foreach($_POST as $item){
+                $data['Data'][$i] = $item;
+                $i++;
+            }
+        }
         if (\Tools\Session::is('message'))
             $data['message'] = \Tools\Session::get('message');
         if (\Tools\Session::is('error'))
             $data['error'] = \Tools\Session::get('error');
 
-        if(!isset($data['IdUser'])){
-            if(isset($data['Login'])) {
+        if(!\Tools\Session::is(\Tools\Access::$idUser)){
+            if(\Tools\Session::is(\Tools\Access::$login) || $_POST['Login']) {
+                if(isset($_POST['Login']) && $_POST['Login'] != null)
+                    $data['Login'] = $_POST['Login'];
+                else{
+                    $data['Login'] = \Tools\Session::get(\Tools\Access::$login);
+                }
                 $IdUser = $this->getModel('User');
-                $IdUser->findUserForLogin($data['Login']);
+                $IdUser = $IdUser->findUserForLogin($data['Login']);
                 if(isset($IdUser['error']))
                     $data['error'] = "Błąd pobierania ID";
-                if(isset($IdUser[\Config\Database\DBConfig\User::$IdUser]))
-                    $data['IdUser'] = $IdUser[\Config\Database\DBConfig\User::$IdUser];
+                if(isset($IdUser['user'][\Config\Database\DBConfig\User::$IdUser]))
+                    $data['IdUser'] = $IdUser['user'][\Config\Database\DBConfig\User::$IdUser];
                 else
                     $data['error'] = "Nie pobrano ID użytkownika!!";
             }
             else
                 $data['error'] = "Nie ma loginu!!";
         }
+        else
+            $data['IdUser'] = \Tools\Session::get(\Tools\Access::$idUser);
 
         if(!isset($data['error'])){
             $sendCodeForVerification = $this->getModel('User');
             if(!isset($data['IdUser']))
                 $data['error'] = "Nie ma ID użytkownika!";
-            $sendCodeForVerification->sendCodeByEmail($data['IdUser']);
+            $sendCodeForVerification = $sendCodeForVerification->sendCodeByEmail($data['IdUser']);
             if(isset($sendCodeForVerification['error']))
                 $data['error'] = "Błąd wysyłania kodu!!";
             else
@@ -51,7 +68,7 @@ class Verification extends Controller {
             }
             \Tools\Session::clear('action');
         }
-        else $data['error'] = "Brak akcji do wykonania!!";
+        else \Tools\Session::set('error' , "Brak akcji do wykonania!!");
         if(isset($data['message']))
             \Tools\Session::set('message' , $data['message']);
         $this->redirect("");

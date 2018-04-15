@@ -18,6 +18,7 @@ class Verification extends Model {
         }
         //Pobranie kodu z bazy
         $Model = \Models\User::class;
+        $Model = new $Model;
         $data = $Model->getCode($IdUser);
         if(isset($data['error'])){
             $data['error'] = \Config\Database\DBErrorName::$empty;
@@ -42,9 +43,12 @@ class Verification extends Model {
                 }
 
                 //Wykonanie akcji, którą zlecił użytkownik
-                $model = new ('Models\\'.$Action['Model']);
-                $action = new $Action['Action'];
-                $model->$action($Action['Data']);
+                $model = 'Models\\'.$Action['Model'];
+                $model = new $model;
+                $action = $Action['Action'];
+                $actionData = $Action['Data'];
+                $actionData[count($actionData)] = true;
+                $model->$action($actionData);
             }
 
             //Zapisanie błędu, jeśli kod nie jest poprawny
