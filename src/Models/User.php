@@ -485,7 +485,7 @@
             return $data;
         }
 
-        private function findUserForLogin($login){
+        public function findUserForLogin($login){
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
@@ -503,7 +503,7 @@
                 $stmt->bindValue(':login' , $login , PDO::PARAM_STR);
                 $stmt->execute();
                 $user = $stmt->fetchAll();
-                if(isset($user[0]))
+                if(isset($user[0]) && count($user) > 0)
                     $data['user'] = $user[0];
                 $stmt->closeCursor();
             }
