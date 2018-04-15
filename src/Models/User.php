@@ -97,7 +97,7 @@
             $Password = password_hash($Password , PASSWORD_BCRYPT, $options);
             $Code = $this->generateCode();
             $IdStatus = 2;
-            $TrialLimit = 2;
+            $TrialLimit = 7;
             $Active = false;
             $CreateDate = date('Y-m-d');
             try{
@@ -666,7 +666,7 @@
                                 }
 
                                 //Jeśli konto loguje się po raz pierwszy, to ustaw aktywność na 1.
-                                if ($user[\Config\Database\DBConfig\User::$Active] === 0) {
+                                if ((int)$user[\Config\Database\DBConfig\User::$Active] === (int)0) {
                                     $setActiveAccount = $this->setActiveAccount($user[\Config\Database\DBConfig\User::$IdUser], 1);
                                     if (isset($setActiveAccount['error'])) {
                                         $data['error'] = $setActiveAccount['error'];
