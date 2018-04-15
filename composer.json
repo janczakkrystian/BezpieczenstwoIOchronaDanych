@@ -1,5 +1,5 @@
 {
-    "description": "Cinema management system.",
+    "description": "Bezpieczenstwo i ochrona danych.",
     "version": "0.1.0",		
     "require": {
         "smarty/smarty": "3.*",

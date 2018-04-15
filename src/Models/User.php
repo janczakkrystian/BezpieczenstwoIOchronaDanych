@@ -211,7 +211,7 @@
             return $data;
         }
 
-        public function generatePassword($length = 20){
+        public function generatePassword($length = 15){
             $available_sets = 'luds';
             $sets = array();
             if(strpos($available_sets, 'l') !== false)
@@ -221,7 +221,7 @@
             if(strpos($available_sets, 'd') !== false)
                 $sets[] = '0123456789';
             if(strpos($available_sets, 's') !== false)
-                $sets[] = '!@#$%&*?[]|;:<>,.';
+                $sets[] = '!@#$%&*?';
             $all = '';
             $password = '';
             foreach($sets as $set)
@@ -408,7 +408,7 @@
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
-
+            //Pobranie kodu z bazy
             $data = $this->getCode($id);
             if(isset($data['error'])){
                 $data['error'] = \Config\Database\DBErrorName::$empty;
@@ -418,6 +418,7 @@
                 $data['error'] = \Config\Database\DBErrorName::$errorCode;
                 return $data;
             }
+            //Przypisanie pobranego kodu użytkownika do zmiennej
             $codeFromBase = $data['code'];
             if($codeFromBase && !empty($codeFromBase)){
 
@@ -502,7 +503,8 @@
                 $stmt->bindValue(':login' , $login , PDO::PARAM_STR);
                 $stmt->execute();
                 $user = $stmt->fetchAll();
-                $data['user'] = $user[0];
+                if(isset($user[0]))
+                    $data['user'] = $user[0];
                 $stmt->closeCursor();
             }
             catch(\PDOException $e){
@@ -635,7 +637,7 @@
                                                 $user[\Config\Database\DBConfig\User::$FirstName] ,
                                                 $user[\Config\Database\DBConfig\User::$LastName],
                                                 $user[\Config\Database\DBConfig\User::$TrialLimit]
-                                );
+                            );
 
                         }
                         else $data['validate'] = false;

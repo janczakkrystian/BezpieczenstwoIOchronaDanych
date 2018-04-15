@@ -14,3 +14,4 @@
     <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/bootstrap.min.js"></script>
 </head>
 <body>
+<div class="container">
