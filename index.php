@@ -13,23 +13,19 @@ $accessController = new \Tools\Access();
 
 if(isset($_GET['controller']))
     $controller = $_GET['controller'];
-else if($accessController->islogin() && (int)(\Tools\Session::get(\Tools\Access::$activeAccount)) === (int)1) {
+else if($accessController->islogin()) {
     if ((int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2)) $controller = 'User';
     else $controller = 'Accounts';
 }
-else if($accessController->islogin() && (int)(\Tools\Session::get(\Tools\Access::$activeAccount)) === (int)0)
-    $controller = 'User';
 else
     $controller ='User';
 
 if(isset($_GET['action']))
     $action = $_GET['action'];
-else if($accessController->islogin() && (int)(\Tools\Session::get(\Tools\Access::$activeAccount)) === (int)1) {
+else if($accessController->islogin()) {
     if((int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2)) $action = "changePasswordForm";
     else $action = 'main';
 }
-else if($accessController->islogin() && (int)(\Tools\Session::get(\Tools\Access::$activeAccount)) !== (int)1)
-    $action = 'verification';
 else
     $action = 'logForm';
 

@@ -398,7 +398,39 @@
             return $data;
         }
 
-        public function verificationAccount($id , $code){
+        private function setActiveAccount($id , $value){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($id === null || $value === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try {
+                $stmt = $this->pdo->prepare('
+                            UPDATE `'.\Config\Database\DBConfig::$tableUser.'` 
+                            SET `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Active.'` = :value 
+                            WHERE `' . \Config\Database\DBConfig::$tableUser . '`.`' . \Config\Database\DBConfig\User::$IdUser . '` = :id');
+                $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+                $stmt->bindValue(':value', $value, PDO::PARAM_INT);
+                $result = $stmt->execute();
+                $stmt->closeCursor();
+
+                if($result) {
+                    $data['message'] = \Config\Database\DBMessageName::$veryficationOk;
+                }
+                else $data['error'] = \Config\Database\DBErrorName::$query;
+
+            } catch (\PDOException $e) {
+                $data['error'] = \Config\Database\DBErrorName::$query;
+                return $data;
+            }
+            return $data;
+        }
+
+        /*public function verificationAccount($id , $code){
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
@@ -483,7 +515,7 @@
                 return $data;
             }
             return $data;
-        }
+        }*/
 
         public function findUserForLogin($login){
             $data = array();
@@ -593,12 +625,9 @@
         public function validatePassword($data){
             $Login = $data[0];
             $Password = $data[1];
-            $Verification = $data[2];
+            if(isset($data[2]))
+                $Verification = $data[2];
             $data = array();
-            if(!isset($Verification) || $Verification !== true){
-                $data['error'] = "Nie potwierdzono czynności!";
-                return $data;
-            }
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
@@ -627,24 +656,39 @@
                     if($user[\Config\Database\DBConfig\User::$Password] && !empty($user[\Config\Database\DBConfig\User::$Password])){
                         if(password_verify($Password , $user[\Config\Database\DBConfig\User::$Password])){
 
+                            //Ustaw sesję tylko wtedy, gdy czynność zostanie potwierdzona
+                            if(isset($Verification) && $Verification === true) {
+                                //Ustaw limit prób logowania z powrtoem na 7.
+                                if ($user[\Config\Database\DBConfig\User::$TrialLimit] >= 0) {
+                                    $data = $this->setTrialLimit($id, 7);
+                                    if (isset($data['error']))
+                                        return $data;
+                                }
 
-                            if($user[\Config\Database\DBConfig\User::$TrialLimit] >= 0) {
-                                $data = $this->setTrialLimit($id, 7);
-                                if (isset($data['error']))
-                                    return $data;
+                                //Jeśli konto loguje się po raz pierwszy, to ustaw aktywność na 1.
+                                if ($user[\Config\Database\DBConfig\User::$Active] === 0) {
+                                    $setActiveAccount = $this->setActiveAccount($user[\Config\Database\DBConfig\User::$IdUser], 1);
+                                    if (isset($setActiveAccount['error'])) {
+                                        $data['error'] = $setActiveAccount['error'];
+                                        return $data;
+                                    }
+                                    $user[\Config\Database\DBConfig\User::$Active] = 1;
+                                }
+
+                                //Ustaw wartości w tabeli po poprawnym zalogowaniu się.
+                                $data['message'] = \Config\Database\DBMessageName::$loginOk;
+                                $data['active'] = $user[\Config\Database\DBConfig\User::$Active];
+
+                                //Ustaw logowanie w sesji, wraz z danymi konta.
+                                \Tools\Access::login($Login,
+                                    $user[\Config\Database\DBConfig\User::$IdUser],
+                                    $user[\Config\Database\DBConfig\User::$Active],
+                                    $user[\Config\Database\DBConfig\User::$FirstName],
+                                    $user[\Config\Database\DBConfig\User::$LastName],
+                                    $user[\Config\Database\DBConfig\User::$TrialLimit]
+                                );
                             }
                             $data['validate'] = true;
-                            $data['message'] = \Config\Database\DBMessageName::$loginOk;
-                            $data['active'] = $user[\Config\Database\DBConfig\User::$Active];
-
-                            //Ustaw logowanie w sesji, wraz z danymi konta.
-                            \Tools\Access::login($Login ,
-                                                $user[\Config\Database\DBConfig\User::$IdUser] ,
-                                                $user[\Config\Database\DBConfig\User::$Active] ,
-                                                $user[\Config\Database\DBConfig\User::$FirstName] ,
-                                                $user[\Config\Database\DBConfig\User::$LastName],
-                                                $user[\Config\Database\DBConfig\User::$TrialLimit]
-                            );
 
                         }
                         else $data['validate'] = false;

@@ -4,7 +4,6 @@ namespace Controllers;
 class Verification extends Controller {
 
     public function verificationForm($id = null){
-        $view = $this->getView('Verification');
         $data = null;
         if($id !== null){
             $data['Model'] = $id[0];
@@ -15,7 +14,18 @@ class Verification extends Controller {
                 $data['Data'][$i] = $item;
                 $i++;
             }
+            if($id[0] === 'User' && $id[1] === 'validatePassword'){
+                $model = $this->getModel('User');
+                $validatePassword = $model->validatePassword($data['Data']);
+                if(isset($validatePassword['error'])) {
+                    \Tools\Session::set('error' ,  $validatePassword['error']);
+                    $this->redirect("");
+                }
+            }
         }
+        else
+            $this->redirect("");
+        $view = $this->getView('Verification');
         if (\Tools\Session::is('message'))
             $data['message'] = \Tools\Session::get('message');
         if (\Tools\Session::is('error'))
