@@ -41,7 +41,8 @@
                     $_POST['LastName'] ,
                     $_POST['Email'] ,
                     $_POST['Login'] ,
-                    $_POST['Password']);
+                    $_POST['Password'],
+                    $_POST['PasswordAgain']);
                 if(isset($data['error']))
                     \Tools\Session::set('error' , $data['error']);
                 if(isset($data['message']))
@@ -50,19 +51,6 @@
                 else $this->regForm($data);
             }
             else $this->redirect("");
-        }
-
-        public function verificationAccount(){
-            $this->islogin();
-            $model = $this->getModel('User');
-            $data = $model->verificationAccount($_POST['IdUser'] , $_POST['Code']);
-            if(isset($data['error'])) {
-                \Tools\Session::set('error', $data['error']);
-            }
-            else{\Tools\Session::set(\Tools\Access::$activeAccount , (int)1);}
-            if(isset($data['message']))
-                \Tools\Session::set('message' , $data['message']);
-            $this->redirect("");
         }
 
         public function sendCodeAgain($id){

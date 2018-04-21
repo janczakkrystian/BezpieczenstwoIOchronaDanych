@@ -83,14 +83,70 @@
             return $data;
         }
 
-        public function register($FirstName , $LastName , $Email , $Login , $Password){
+        public function checkLogin($login){
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if($FirstName === null || $LastName === null || $Email === null || $Login === null || $Password === null){
+            if($login === null ||
+                $login === ""
+            ){
                 $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try{
+                $stmt = $this->pdo->prepare('
+                    SELECT *
+                    FROM `'.\Config\Database\DBConfig::$tableUser.'` 
+                    WHERE `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Login.'` = :login;');
+                $stmt->bindValue(':login' , $login , PDO::PARAM_STR);
+                $result = $stmt->execute();
+                if(!$result){
+                    $data['error'] = \Config\Database\DBErrorName::$nomatch;
+                    return $data;
+                }
+                else{
+                    $login = $stmt->fetchAll();
+                    if(count($login) >= 1){
+                        $data['check'] = false;
+                    }
+                    else
+                        $data['check'] = true;
+                }
+                $stmt->closeCursor();
+            }
+            catch(\PDOException $e){
+                $data['error'] = \Config\Database\DBErrorName::$query;
+            }
+            return $data;
+        }
+
+        public function register($FirstName , $LastName , $Email , $Login , $Password , $PasswordAgain){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($FirstName === null || $LastName === null || $Email === null ||
+                $Login === null || $Password === null || $PasswordAgain === null ||
+                $FirstName === "" || $LastName === ""  || $Email === ""  ||
+                $Login === ""  || $Password === ""  || $PasswordAgain === ""
+            ){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            if($Password !== $PasswordAgain){
+                $data['error'] = \Config\Database\DBErrorName::$notTheSamePassword;
+                return $data;
+            }
+            $checkLogin = $this->checkLogin($Login);
+            if(isset($checkLogin['error'])){
+                $data['error'] = $checkLogin['error'];
+                return $data;
+            }
+            if(!isset($checkLogin['check']) || $checkLogin['check'] === false){
+                $data['error'] = "Login jest już zajęty";
                 return $data;
             }
             $options = array('cost' => 6);
@@ -136,14 +192,6 @@
                 if(!$result)
                     $data['error'] = \Config\Database\DBErrorName::$noadd;
                 else {
-                    $data = $this->sendByEmail($Email ,
-                                                $FirstName ,
-                                                $LastName ,
-                                                \Config\Database\DBMessageName::$veryficationCodeEmailSubject ,
-                                        \Config\Database\DBMessageName::$veryficationCodeEmailBody.$Code);
-                    if(isset($data['error'])){
-                        return $data;
-                    }
                     $data['message'] = \Config\Database\DBMessageName::$registerok;
                 }
                 $stmt->closeCursor();
@@ -429,93 +477,6 @@
             }
             return $data;
         }
-
-        /*public function verificationAccount($id , $code){
-            $data = array();
-            if($this->pdo === null){
-                $data['error'] = \Config\Database\DBErrorName::$connection;
-                return $data;
-            }
-            if($id === null || $code === null){
-                $data['error'] = \Config\Database\DBErrorName::$empty;
-                return $data;
-            }
-            //Pobranie kodu z bazy
-            $data = $this->getCode($id);
-            if(isset($data['error'])){
-                $data['error'] = \Config\Database\DBErrorName::$empty;
-                return $data;
-            }
-            if(!isset($data['code'])){
-                $data['error'] = \Config\Database\DBErrorName::$errorCode;
-                return $data;
-            }
-            //Przypisanie pobranego kodu użytkownika do zmiennej
-            $codeFromBase = $data['code'];
-            if($codeFromBase && !empty($codeFromBase)){
-
-                if((int)$code === (int)$codeFromBase) {
-                    try {
-                        $stmt = $this->pdo->prepare('
-                            UPDATE `'.\Config\Database\DBConfig::$tableUser.'` 
-                            SET `'.\Config\Database\DBConfig::$tableUser.'`.`'.\Config\Database\DBConfig\User::$Active.'` = 1 
-                            WHERE `' . \Config\Database\DBConfig::$tableUser . '`.`' . \Config\Database\DBConfig\User::$IdUser . '` = :id');
-                        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-                        $result = $stmt->execute();
-                        $stmt->closeCursor();
-
-                        if($result) {
-                            $data = $this->setCode($id , $this->generateCode());
-                            if(isset($data['error'])){return $data;}
-                            $data = $this->setTrialLimit($id , 7);
-                            if(isset($data['error'])){return $data;}
-                            $data = array();
-                            $data['message'] = \Config\Database\DBMessageName::$veryficationOk;
-                        }
-                        else $data['error'] = \Config\Database\DBErrorName::$query;
-
-                    } catch (\PDOException $e) {
-                        $data['error'] = \Config\Database\DBErrorName::$query;
-                        return $data;
-                    }
-                }
-                else{
-                    $data = $this->showTrialLimit($id);
-                    $trialLimit = $data['trialLimit'];
-                    if($trialLimit > 0) {
-                        $trialLimit = $trialLimit - 1;
-                        $data = $this->setTrialLimit($id , $trialLimit);
-                        if (isset($data['error'])) {
-                            return $data;
-                        }
-                    }
-                    if($trialLimit <= 0){
-                        $data = $this->setCode($id , $this->generateCode());
-                        if(isset($data['error'])){
-                            return $data;
-                        }
-                        $data = $this->sendCodeByEmail($id);
-                        if(isset($data['error'])){
-                            return $data;
-                        }
-                        $data = $this->setTrialLimit($id , 2);
-                        if(isset($data['error'])){
-                            return $data;
-                        }
-                        $data['error'] = \Config\Database\DBMessageName::$generatedNewCode;
-                    }
-                    else
-                        $data['error'] = \Config\Database\DBErrorName::$errorCode." Pozostało ".$trialLimit." prób.";
-                    return $data;
-                }
-
-            }
-            else{
-                $data['error'] = \Config\Database\DBErrorName::$nomatch;
-                return $data;
-            }
-            return $data;
-        }*/
 
         public function findUserForLogin($login){
             $data = array();
