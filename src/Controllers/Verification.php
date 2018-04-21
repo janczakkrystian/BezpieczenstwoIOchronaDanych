@@ -58,8 +58,10 @@ class Verification extends Controller {
             if(!isset($data['IdUser']))
                 $data['error'] = "Nie ma ID użytkownika!";
             $sendCodeForVerification = $sendCodeForVerification->sendCodeByEmail($data['IdUser']);
-            if(isset($sendCodeForVerification['error']))
+            if(isset($sendCodeForVerification['error'])) {
                 $data['error'] = "Błąd wysyłania kodu";
+                $this->redirect('');
+            }
             else
                 $data['message'] = "Wysłano kod na email";
         }

@@ -26,7 +26,7 @@
                     \Tools\Session::set('error', $data['error']);
                 if (isset($data['message']))
                     \Tools\Session::set('message', $data['message']);
-                if (!isset($data['validate']) || $data['validate'] === true) {
+                if (isset($data['validate']) && $data['validate'] === true) {
                     $this->redirect("");
                 } else {
                     $this->logForm();
