@@ -3,28 +3,51 @@ namespace Controllers;
 
 class Verification extends Controller {
 
-    public function verificationForm($id = null){
+    public function verificationForm(){
+        if(\Tools\Session::is('priority'))
+            \Tools\Session::clear('priority');
         $data = null;
-        if($id !== null){
-            $data['Model'] = $id[0];
-            $data['Action'] = $id[1];
+        if(\Tools\Session::is('controller') && \Tools\Session::is('action')){
+            $data['Model'] = \Tools\Session::get('controller');
+            $data['Action'] = \Tools\Session::get('action');
             $data['Data'] = array();
             $i = 0;
+            \Tools\Session::clear('controller');
+            \Tools\Session::clear('action');
             foreach($_POST as $item){
                 $data['Data'][$i] = $item;
                 $i++;
             }
-            if($id[0] === 'User' && $id[1] === 'validatePassword'){
+            if($data['Model'] === 'User' && $data['Action'] === 'validatePassword'){
                 $model = $this->getModel('User');
                 $validatePassword = $model->validatePassword($data['Data']);
                 if(isset($validatePassword['error'])) {
                     \Tools\Session::set('error' ,  $validatePassword['error']);
                     $this->redirect("");
                 }
-            }
+                elseif(isset($validatePassword['message'])){
+                    \Tools\Session::set('error' ,  \Config\Database\DBErrorName::$dataLoginWrong);
+                    $this->redirect("");
+                }
+            } //Walidacja danych zanim przejdzie do weryfikacji kodem.
+            elseif(($data['Model'] === 'User' && $data['Action'] === 'changedPassword')){
+                $data['Data'][3] = $data['Data'][2];
+                $data['Data'][2] = $data['Data'][1];
+                $data['Data'][1] = $data['Data'][0];
+                $data['Data'][0] = \Tools\Session::get(\Tools\Access::$login);
+                $data['Data'][4] = (int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2);
+                $model = $this->getModel('User');
+                $changePassword = $model->changedPassword($data['Data']);
+                if(isset($changePassword['error'])) {
+                    \Tools\Session::set('error', $changePassword['error']);
+                    $this->redirect("?controller=User&action=changePasswordForm");
+                }
+            } //Sprawdzenie, czy hasło spełnia wymagania, nim przejdzie do weryfikacji kodem.
         }
-        else
+        else {
+            \Tools\Session::set('error' , 'Brak danych!');
             $this->redirect("");
+        }
         $view = $this->getView('Verification');
         if (\Tools\Session::is('message'))
             $data['message'] = \Tools\Session::get('message');
@@ -59,7 +82,7 @@ class Verification extends Controller {
                 $data['error'] = "Nie ma ID użytkownika!";
             $sendCodeForVerification = $sendCodeForVerification->sendCodeByEmail($data['IdUser']);
             if(isset($sendCodeForVerification['error'])) {
-                $data['error'] = "Błąd wysyłania kodu";
+                $data['error'] = "Błąd wysyłania kodu!";
                 $this->redirect('');
             }
             else
@@ -72,12 +95,13 @@ class Verification extends Controller {
     }
 
     public function verification(){
+        if(\Tools\Session::is('priority'))
+            \Tools\Session::clear('priority');
         $model = $this->getModel('Verification');
         if(\Tools\Session::is('action')) {
             $data = $model->verificationAndAction($_POST['IdUser'], $_POST['Code'], \Tools\Session::get('action'));
             if (isset($data['error'])) {
                 \Tools\Session::set('error', $data['error']);
-                //Dorobić przekierowanie na stronę z zatwierdzeniem kodu.
             }
             \Tools\Session::clear('action');
         }

@@ -545,9 +545,20 @@
             return $data;
         }
 
-        public function changePassword($login , $oldpassword , $newpassword , $newPasswordAgain , $mustBeChanged = false){
-            //Dopisać sprawdzenie historii haseł!!
+        public function changedPassword($input){
             $data = array();
+            if(!is_array($input)){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            $login = $input[0];
+            $oldpassword = $input[1];
+            $newpassword = $input[2];
+            $newPasswordAgain = $input[3];
+            $mustBeChanged = $input[4];
+            if(isset($input[5]))
+                $check = $input[5];
+            //Dopisać sprawdzenie historii haseł!!
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
@@ -590,31 +601,34 @@
                     return $data;
                 }
 
-                //Ustawienie nowego hasła dla użytkownika.
-                $data = $this->setPassword($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
-                if(isset($data['error']))
-                    return $data;
+                //Ustaw nowe hasło tylko wtedy, gdy czynność zostanie potwierdzona
+                if(isset($check) && $check == true) {
 
-                //Dodanie nowego hasła do historii haseł.
-                $data = new \Models\PasswordHistory;
-                $data = $data->addNewPasswordForUser($user[\Config\Database\DBConfig\User::$IdUser] , $newpassword);
-                if(isset($data['error']))
-                    return $data;
-
-                //W przypadku, gdy hasło zostało wymuszone, ustawiamy poprawny limit prób.
-                if($mustBeChanged)
-                {
-                    $data = $this->setTrialLimit($user[\Config\Database\DBConfig\User::$IdUser] , 7);
-                    if(isset($data['error']))
+                    //Ustawienie nowego hasła dla użytkownika.
+                    $data = $this->setPassword($user[\Config\Database\DBConfig\User::$IdUser], $newpassword);
+                    if (isset($data['error']))
                         return $data;
-                }
 
-                //Hasło ustawiono poprawnie.
-                $data = array();
-                $data['message'] = \Config\Database\DBMessageName::$changePasswordOk;
-                $data['change'] = true;
-                \Tools\Session::set(\Tools\Access::$trialLimit , 7);
-                return $data;
+                    //Dodanie nowego hasła do historii haseł.
+                    $data = new \Models\PasswordHistory;
+                    $data = $data->addNewPasswordForUser($user[\Config\Database\DBConfig\User::$IdUser], $newpassword);
+                    if (isset($data['error']))
+                        return $data;
+
+                    //W przypadku, gdy hasło zostało wymuszone, ustawiamy poprawny limit prób.
+                    if ($mustBeChanged) {
+                        $data = $this->setTrialLimit($user[\Config\Database\DBConfig\User::$IdUser], 7);
+                        if (isset($data['error']))
+                            return $data;
+                    }
+
+                    //Hasło ustawiono poprawnie.
+                    $data = array();
+                    $data['message'] = \Config\Database\DBMessageName::$changePasswordOk;
+                    $data['change'] = true;
+                    \Tools\Session::set(\Tools\Access::$trialLimit, 7);
+                    return $data;
+                }
             }
             else
                 $data['error'] = \Config\Database\DBErrorName::$errorChangePassword;
@@ -752,6 +766,7 @@
 
                     //Ustaw wiadomość dla użytkownika o wygenerowaniu nowego hasła.
                     $data['message'] = \Config\Database\DBMessageName::$generatedNewPassword;
+                    return $data;
                 }
                 //Jeśli hasło dalej jest niepoprawne, a zostało już wysłane na email nowe silne hasło, to poinformuj użytkownika.
                 else $data['message'] = \Config\Database\DBMessageName::$passwordWasSent;

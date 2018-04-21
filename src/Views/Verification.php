@@ -21,6 +21,7 @@ class Verification extends View {
             $action['Action'] = $data['Action'];
         if(isset($data['Data']))
             $action['Data'] = $data['Data'];
+        \Tools\Session::set('priority' , true);
         \Tools\Session::set('action' , $action);
     }
 
