@@ -19,6 +19,21 @@ class Verification extends Controller {
                 $i++;
             }
             if($data['Model'] === 'User' && $data['Action'] === 'validatePassword'){
+
+                //Captcha
+                $i--;
+                unset($data['Data'][$i]); // Usuwam ostatnią wartość, ponieważ Captcha we formularzu jest dodatkowym polem, dodawanym
+                                          //niepotrzebnie do tablicy ['Data']
+                $url = "https://www.google.com/recaptcha/api/siteverify";
+                $privatekey = "6LfuYFYUAAAAAAfsw5fzWdCh7g3j7nKtapeSb7t_";
+                $response = file_get_contents($url."?secret=".$privatekey."&response=".$_POST['g-recaptcha-response']."&remoteip=".$_SERVER['REMOTE_ADDR']);
+                $checkCaptcha = json_decode($response);
+                //Jeśli Captcha nie została zaznaczona, to przekierowujemy spowrotem do logowania z informacją
+                if(!isset($checkCaptcha->success) || $checkCaptcha->success != true){
+                    \Tools\Session::set('error' ,  "Jesteś robotem!");
+                    $this->redirect("");
+                }
+
                 $model = $this->getModel('User');
                 $validatePassword = $model->validatePassword($data['Data']);
                 if(isset($validatePassword['error'])) {
