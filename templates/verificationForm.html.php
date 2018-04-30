@@ -10,7 +10,7 @@
             </div>
             <button type="submit" class="btn btn-success">Potwierdź</button>
         </form>
-        <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=sendCodeAgain&id={$smarty.session.idUser}">Jeśli nie dostałeś kodu, prześlij ponownie!</a></span>
+        <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=sendCodeAgain&id={if isset($smarty.session.idUser)}{$smarty.session.idUser}{elseif isset($IdUser)}{$IdUser}{/if}">Jeśli nie dostałeś kodu, prześlij ponownie!</a></span>
     </div>
 </div>
 {/block}
