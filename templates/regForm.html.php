@@ -1,7 +1,7 @@
 {extends file="templates/globalTemplate.html.php"}
 {block name="body"}
 <div class="col-lg-offset-3 col-lg-6 col-md-offset-3 col-md-6 col">
-    <form  class="centered-form" action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=register" method="POST">
+    <form  id="regForm" class="centered-form" action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=register" method="POST">
         <legend class="text-center text-info">Zarejestruj się</legend>
         <div class="form-group">
             <label for="FirstName">Imie</label>

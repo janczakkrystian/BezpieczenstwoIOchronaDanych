@@ -62,7 +62,7 @@
             }
             if(isset($data['message']))
                 \Tools\Session::set('message' , $data['message']);
-            $this->redirect("");
+            $this->redirect("?controller=Verification&action=verificationForm");
         }
 
         public function logout(){

@@ -9,9 +9,26 @@
     <link href="http://{$smarty.server.HTTP_HOST}{$subdir}resources/css/formularz.css" rel="stylesheet" type="text/css">
     <link href="http://{$smarty.server.HTTP_HOST}{$subdir}resources/css/starter-template.css" rel="stylesheet" type="text/css">
 
+    {*/Captcha/*}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
     {*/Bootstrap i AJAX/*}
     <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/jquery.min.js"></script>
     <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/bootstrap.min.js"></script>
+
+    {*/Walidowanie/*}
+    <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/jquery.validate.min.js"></script>
+    {*/Metody/*}
+    <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/validator_methods.js"></script>
+    {*/Rejestracja/*}
+    <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/register_form_validation.js"></script>
+    {*/Logowanie/*}
+    <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/log_form_validation.js"></script>
+    {*/Weryfikacja/*}
+    <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/verification_form_validation.js"></script>
+    {*/Zamiana hasła/*}
+    <script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/changePassword_form_validation.js"></script>
+
 </head>
 <body>
 <div class="container">

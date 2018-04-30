@@ -140,6 +140,10 @@
                 $data['error'] = \Config\Database\DBErrorName::$notTheSamePassword;
                 return $data;
             }
+            if(!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$#", $Password) ){
+                $data['error'] = "Wymagane jest przynajmniej 8 znaków, mała, wielka litera, cyfra oraz znak specjalny.";
+                return $data;
+            }
             $checkLogin = $this->checkLogin($Login);
             if(isset($checkLogin['error'])){
                 $data['error'] = $checkLogin['error'];
@@ -532,6 +536,12 @@
             //Sprawdzamy, czy nowe hasło zostało dobrze podane
             if($newpassword != $newPasswordAgain){
                 $data['error'] = \Config\Database\DBErrorName::$notTheSamePassword;
+                return $data;
+            }
+
+            //Sprawdzamy, czy nowe hasło jest silnym hasłem
+            if(!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$#", $newpassword) ){
+                $data['error'] = "Wymagane jest przynajmniej 8 znaków, mała, wielka litera, cyfra oraz znak specjalny.";
                 return $data;
             }
 
