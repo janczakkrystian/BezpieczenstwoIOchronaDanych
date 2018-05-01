@@ -61,7 +61,8 @@ class Log extends Model {
             $stmt = $this->pdo->prepare('
                     SELECT *  
                     FROM `'.\Config\Database\DBConfig::$tableLog.'` 
-                    WHERE `'.\Config\Database\DBConfig::$tableLog.'`.`'.\Config\Database\DBConfig\Log::$IdUser.'` = :idUser'
+                    WHERE `'.\Config\Database\DBConfig::$tableLog.'`.`'.\Config\Database\DBConfig\Log::$IdUser.'` = :idUser
+                    ORDER BY `'.\Config\Database\DBConfig::$tableLog.'`.`'.\Config\Database\DBConfig\Log::$Date.'` DESC'
             );
             $stmt->bindValue(':idUser' , $idUser , PDO::PARAM_INT);
             $result = $stmt->execute();

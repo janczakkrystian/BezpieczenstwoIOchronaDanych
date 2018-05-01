@@ -19,7 +19,7 @@
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=changePasswordForm">Zmień hasło</a></li>
-                        <li><a href="#">Zapisane logi</a></li>
+                        <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Log&action=logs">Zapisane logi</a></li>
                     </ul>
                 </li>
                 <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=logout">Wyloguj się</a></li>
