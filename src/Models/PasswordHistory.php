@@ -3,6 +3,29 @@
     use Config\Database\DBConfig;
     use \PDO;
     class PasswordHistory extends Model {
+
+        public function getPasswordExpiration($idUser){
+            $data = array();
+            if($this->pdo === null){
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if($idUser === null){
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            $data = $this->getAllPasswordHistoryForUser($idUser);
+            if(isset($data['error'])){
+                return $data;
+            }
+            if(count($data['passwordsHistory']) <= 0)
+                return -1;
+            $passwordExpiration = $data['passwordsHistory'][0][\Config\Database\DBConfig\PasswordsHistory::$CreateDate];
+            $today = date('Y-m-d', time());
+            $passwordExpiration = round((strtotime($today) - strtotime($passwordExpiration)) / 86400);
+            return $passwordExpiration;
+        }
+
         public function getAllPasswordHistoryForUser($idUser){
             $data = array();
             if($this->pdo === null){
@@ -17,7 +40,9 @@
                 $stmt = $this->pdo->prepare('
                     SELECT *  
                     FROM `'.\Config\Database\DBConfig::$tablePasswordsHistory.'` 
-                    WHERE `'.\Config\Database\DBConfig::$tablePasswordsHistory.'`.`'.\Config\Database\DBConfig\PasswordsHistory::$IdUser.'` = :idUser');
+                    WHERE `'.\Config\Database\DBConfig::$tablePasswordsHistory.'`.`'.\Config\Database\DBConfig\PasswordsHistory::$IdUser.'` = :idUser
+                    ORDER BY `'.\Config\Database\DBConfig::$tablePasswordsHistory.'`.`'.\Config\Database\DBConfig\PasswordsHistory::$CreateDate.'` DESC
+                ');
                 $stmt->bindValue(':idUser' , $idUser , PDO::PARAM_INT);
                 $stmt->execute();
                 $passwordsHistory = $stmt->fetchAll();

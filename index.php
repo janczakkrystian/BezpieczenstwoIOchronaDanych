@@ -40,7 +40,7 @@ else {
         //Jeśli jestem zalogowany, to:
         if ($accessController->islogin()) {
             //Ustaw okno zmiany hasła, jeśli hasło jest ustawione losowe
-            if ((int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2)) $controller = 'User';
+            if ((int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2) || (int)(\Tools\Session::get(\Tools\Access::$passwordExpiration)) > (int)(30)) $controller = 'User';
             //Ustaw główne okno aplikacji
             elseif(isset($_GET['controller']))  $controller = $_GET['controller'];
             else $controller = 'Accounts';
@@ -50,7 +50,7 @@ else {
             $controller = 'User';
 
         if ($accessController->islogin()) {
-            if ((int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2)) $action = "changePasswordForm";
+            if ((int)(\Tools\Session::get(\Tools\Access::$trialLimit)) === (int)(-2) || (int)(\Tools\Session::get(\Tools\Access::$passwordExpiration)) > (int)(30)) $action = "changePasswordForm";
             elseif(isset($_GET['action'])) $action = $_GET['action'];
             else $action = 'main';
         } elseif (isset($_GET['action']))
