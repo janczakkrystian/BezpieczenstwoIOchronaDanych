@@ -35,6 +35,13 @@
 
         public function register(){
             if(!\Tools\Access::islogin()) {
+                $model = $this->getModel("Captcha");
+                $captcha = $model->verificationCaptcha($_POST['g-recaptcha-response']);
+                if(isset($captcha['error'])){
+                    \Tools\Session::set('error' , $captcha['error']);
+                    $this->redirect("?controller=User&action=regForm");
+                }
+
                 $model = $this->getModel('User');
                 $data = $model->register(
                     $_POST['FirstName'] ,

@@ -27,6 +27,7 @@
             <label for="PasswordAgain">Powtórz hasło</label>
             <input type="password" class="form-control" id="PasswordAgain" name="PasswordAgain" placeholder="Powtórz hasło" required>
         </div>
+        <div class="g-recaptcha" data-sitekey="6LfuYFYUAAAAAOvlwQY1BoE-9S2DlrLEAn0k1nZZ"></div>
         <button type="submit" class="btn btn-success">Zarejestruj</button>
     </form>
     <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}">Jeśli masz już konto, zaloguj się!</a></span>
