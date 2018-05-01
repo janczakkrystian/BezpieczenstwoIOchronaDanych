@@ -7,14 +7,21 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=changePasswordForm">Portfel</a>
+            <a class="navbar-brand" href="http://{$smarty.server.HTTP_HOST}{$subdir}">Portfel</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
             </ul>
             <ul class="nav navbar-nav navbar-right logowanie">
                 {if isset($smarty.session.user)}
-                <li><a>Login: {$smarty.session.user}</a></li>
+                <li>
+                    <a class="dropdown-toggle" data-toggle="dropdown">Login: {$smarty.session.user}
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=changePasswordForm">Zmień hasło</a></li>
+                        <li><a href="#">Zapisane logi</a></li>
+                    </ul>
+                </li>
                 <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=logout">Wyloguj się</a></li>
                 {/if}
             </ul>

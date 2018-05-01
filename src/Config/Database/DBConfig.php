@@ -3,6 +3,7 @@ namespace Config\Database;
 
 class DBConfig
 {
+    //Configuration database
     //nazwa bazy danych
     public static $databaseName = 'biod';
     //dane dostępowe do bazy danych
@@ -11,6 +12,16 @@ class DBConfig
     public static $port = '3306';
     public static $user = 'root';
     public static $password = '';
+
+    //Configuration email
+    public static $hostEmail = 'poczta.o2.pl';
+    public static $userNameEmail = 'loginDoPoczty';
+    public static $passwordEmail = 'hasloDoPoczty';
+    public static $SMTPSecureEmail = 'ssl';
+    public static $PORTEmail = 465;
+    public static $subjectEmail = 'Portfel haseł';
+    public static $fullNameEmail = 'poczta@o2.pl';
+
 
     //Tables
     public static $tableAccount = "Account";
