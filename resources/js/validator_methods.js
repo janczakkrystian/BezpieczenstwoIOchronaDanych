@@ -11,7 +11,7 @@ $(document).ready(function() {
     $.validator.addMethod(
         'password',
         function (value, element) {
-            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*\?])(?=.{8,})/.test(value);
+            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&.\*\?])(?=.{8,})/.test(value);
         },
         'Wymagane jest przynajmniej 8 znaków, mała, wielka litera, cyfra oraz znak specjalny.'
     );
@@ -19,7 +19,7 @@ $(document).ready(function() {
     $.validator.addMethod(
         'zakres',
         function (value, element) {
-            return /^\w+$/.test(value);
+            return /[a-zA-ZąęćżźńłóśĄĆĘŁŃÓŚŹŻ\s]+$/.test(value);
         },
         'Dozwolone są małe i wielkie litery oraz cyfry.'
     );
@@ -27,7 +27,7 @@ $(document).ready(function() {
     $.validator.addMethod(
         'litery',
         function (value, element) {
-            return /^[A-Za-z]+$/.test(value);
+            return /[a-zA-ZąęćżźńłóśĄĆĘŁŃÓŚŹŻ\s]+$/.test(value);
         },
         'Dozwolone są małe i wielkie litery.'
     );

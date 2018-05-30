@@ -12,8 +12,14 @@
             <label for="Password">Hasło</label>
             <input type="password" class="form-control" id="Password" name="Password" placeholder="Hasło" required="required"/>
         </div>
-        <div class="g-recaptcha" data-sitekey="6LfuYFYUAAAAAOvlwQY1BoE-9S2DlrLEAn0k1nZZ"></div>
-        <button type="submit" class="btn btn-success">Zaloguj</button>
+        
+		<div class="form-group">
+            <div class="g-recaptcha" data-sitekey="6LfuYFYUAAAAAOvlwQY1BoE-9S2DlrLEAn0k1nZZ"></div>
+        </div>
+		<div class="form-group">
+            <button type="submit" class="btn btn-success">Zaloguj</button>
+        </div>
+        
     </form>
     <span><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=User&action=regForm">Jeśli nie masz konta, zarejestruj się!</a></span>
 </div>

@@ -15,6 +15,13 @@
             <ul class="nav navbar-nav navbar-right logowanie">
                 {if isset($smarty.session.user)}
                 <li>
+                    <a class="dropdown-toggle" data-toggle="dropdown">Hasła : {$smarty.session.user}
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Accounts&action=addform">Dodaj Hasło</a></li>
+                    </ul>
+                </li>
+                <li>
                     <a class="dropdown-toggle" data-toggle="dropdown">Login: {$smarty.session.user}
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">

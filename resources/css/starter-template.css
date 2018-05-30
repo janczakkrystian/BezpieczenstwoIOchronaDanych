@@ -19,3 +19,7 @@ body {
 .container{
   margin-bottom: 105px;
 }
+
+form .btn{
+    width: 525px;
+}

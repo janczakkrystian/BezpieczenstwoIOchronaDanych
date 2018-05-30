@@ -248,6 +248,67 @@
         echo \Config\Database\DBErrorName::$noadd;
     }
 
+
+    //Table AccountDictionary
+
+    $AccountDictionaries = array();
+    $AccountDictionaries[] = array(
+        'Name' => 'Nasza Klasa');
+    $AccountDictionaries[] = array(
+        'Name' => 'Facebook');
+    $AccountDictionaries[] = array(
+        'Name' => 'Twitter');
+    $AccountDictionaries[] = array(
+        'Name' => 'Pinterest');
+    $AccountDictionaries[] = array(
+        'Name' => 'Steam');
+    $AccountDictionaries[] = array(
+        'Name' => 'Linkedin');
+    $AccountDictionaries[] = array(
+        'Name' => 'Google+');
+    $AccountDictionaries[] = array(
+        'Name' => 'YouTube');
+    $AccountDictionaries[] = array(
+        'Name' => 'Instagram');
+    $AccountDictionaries[] = array(
+        'Name' => 'Tumbrl');
+    $AccountDictionaries[] = array(
+        'Name' => 'Snapchat');
+    $AccountDictionaries[] = array(
+        'Name' => 'WhatsApp');
+    $AccountDictionaries[] = array(
+        'Name' => 'Slack');
+    $AccountDictionaries[] = array(
+    'Name' => 'Musica.ly');
+    $AccountDictionaries[] = array(
+        'Name' => 'Reddit');
+    $AccountDictionaries[] = array(
+        'Name' => 'SoundCloud');
+    $AccountDictionaries[] = array(
+        'Name' => 'Onet');
+    $AccountDictionaries[] = array(
+        'Name' => 'Wirtualna Polska');
+    $AccountDictionaries[] = array(
+        'Name' => 'Interia');
+    $AccountDictionaries[] = array(
+        'Name' => 'o2');
+
+    // insert
+    try
+    {
+        $stmt = $pdo -> prepare('INSERT INTO `'.DB::$tableAccountDictionary.'` (`'.DB\Status::$Name.'`) VALUES(:Name)');
+        foreach($AccountDictionaries as $AccountDictionary)
+        {
+        $stmt -> bindValue(':Name', $AccountDictionary['Name'], PDO::PARAM_STR);
+        $stmt -> execute();
+        }
+    }
+    catch(PDOException $e)
+    {
+    echo \Config\Database\DBErrorName::$noadd;
+    }
+
+
 echo "<b>Instalacja aplikacji zakończona!</b>"
 ?>
 </body>

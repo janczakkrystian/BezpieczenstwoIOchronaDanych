@@ -2,5 +2,5 @@
 	namespace Config\Website;
 	
 	class Config{
-		public static $subdir = 'Projekty/BezpieczenstwoIOchronaDanych/';
+		public static $subdir = 'BezpieczenstwoIOchronaDanych-master/';
 	}
