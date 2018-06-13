@@ -12,7 +12,7 @@
             <label for="Password">Hasło</label>
             <input type="password" class="form-control" id="Password" name="Password" placeholder="Hasło" minlength="8" maxlength="200" required="required"/>
         </div>
-        
+        <input type="hidden" id="IP" name="IP" required="required" value="127.0.0.2"/>
 		<div class="form-group">
             <div class="g-recaptcha" data-sitekey="6LfuYFYUAAAAAOvlwQY1BoE-9S2DlrLEAn0k1nZZ"></div>
         </div>
@@ -25,3 +25,4 @@
 </div>
 </div>
 {/block}
+{block name="js"}<script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/logForm.js"></script>{/block}

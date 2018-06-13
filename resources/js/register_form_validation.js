@@ -6,7 +6,7 @@ $(document).ready(function() {
                 required: true,
                 minlength: 3,
                 maxlength: 30,
-                litery: false
+                litery: true
             },
             LastName: {
                 required: true,

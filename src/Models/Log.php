@@ -24,10 +24,10 @@ class Log extends Model {
                      `'.\Config\Database\DBConfig::$tableLog.'`.`'.\Config\Database\DBConfig\Log::$Date.'`,
                      `'.\Config\Database\DBConfig::$tableLog.'`.`'.\Config\Database\DBConfig\Log::$IP.'`,
                      `'.\Config\Database\DBConfig::$tableLog.'`.`'.\Config\Database\DBConfig\Log::$IdUser.'`)
-                    VALUES(:description , :date , :ip, :idUser)
+                    VALUES(:description , :dateLog , :ip, :idUser)
                 ');
             $stmt->bindValue(':description' , $description , PDO::PARAM_STR);
-            $stmt->bindValue(':date' , $date , PDO::PARAM_STR);
+            $stmt->bindValue(':dateLog' , $date , PDO::PARAM_STR);
             $stmt->bindValue(':ip' , $ip , PDO::PARAM_STR);
             $stmt->bindValue(':idUser' , $idUser , PDO::PARAM_INT);
             $result = $stmt->execute();

@@ -15,12 +15,12 @@ class DBConfig
 
     //Configuration email
     public static $hostEmail = 'poczta.o2.pl';
-    public static $userNameEmail = 'loginDoPoczty';
-    public static $passwordEmail = 'hasloDoPoczty';
+    public static $userNameEmail = 'biodprojekt2018';
+    public static $passwordEmail = 'informatyka2018';
     public static $SMTPSecureEmail = 'ssl';
     public static $PORTEmail = 465;
     public static $subjectEmail = 'Portfel haseł';
-    public static $fullNameEmail = 'poczta@o2.pl';
+    public static $fullNameEmail = 'biodprojekt2018@o2.pl';
 
 
     //Tables
