@@ -3,14 +3,14 @@
 <div class = "col-lg-12 col-md-12">
 <div class="col-lg-offset-3 col-lg-6 col-md-offset-3 col-md-6">
     <form id="logForm" class="centered-form" action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Verification&action=verificationForm" method="POST">
-        <legend class="text-center text-info">Zaloguj się</legend>
+        <legend class="text-center text-info" style="margin-top: 15px">Zaloguj się</legend>
         <div class="form-group">
-            <label for="Login">Login</label>
-            <input type="text" class="form-control" id="Login" name="Login" placeholder="Login" required="required"/>
+            <label for="Login" style="margin-top: -12px">Login</label>
+            <input type="text" class="form-control" id="Login" name="Login" placeholder="Login" minlength="3" maxlength="100" required="required"/>
         </div>
         <div class="form-group">
             <label for="Password">Hasło</label>
-            <input type="password" class="form-control" id="Password" name="Password" placeholder="Hasło" required="required"/>
+            <input type="password" class="form-control" id="Password" name="Password" placeholder="Hasło" minlength="8" maxlength="200" required="required"/>
         </div>
         
 		<div class="form-group">

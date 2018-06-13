@@ -3,13 +3,14 @@
 
 <div class="panel-heading">
     <div class="panel-title text-center">
-        <h1 class="title">Zmiana Danych</h1>
+        <legend class="text-center text-info" style="margin-top: 15px">Zmiana danych</legend>
+
     </div>
-    <form action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Accounts&action=update" id="formularz" method="post">
+    <form action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Accounts&action=update" id="formularz" method="post" >
 
-        <div class="main-login main-center">
+        <div class="main-login main-center" >
 
-            <div class="form-group">
+            <div class="form-group" >
                 <div class="cols-sm-10">
                     <div class="form-group">
                         <div class="cols-sm-10">
@@ -28,8 +29,8 @@
                     </div>
 
 
-                    <div class="form-group">
-                        <label for="Login" class="cols-sm-2 control-label">Login</label>
+                    <div class="form-group"  style="margin-top: -40px">
+                        <label for="Login" class="cols-sm-2 control-label"">Login</label>
                         <div class="cols-sm-10">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-header" aria-hidden="true"></i></span>
@@ -49,7 +50,7 @@
                     </div>
 
             <div class="form-group ">
-                <button type="sumbit"  class="btn btn-success btn-lg btn-block login-button">Zapisz Nowe Dane</button>
+                <button type="sumbit"  class="btn btn-success  login-button" style="width: 540px">Zapisz Nowe Dane</button>
             </div>
 
 

@@ -93,14 +93,13 @@ class Verification extends Controller {
             $sendCodeForVerification = $this->getModel('User');
             if(!isset($data['IdUser']))
                 $data['error'] = "Nie ma ID użytkownika!";
-            //-----------------------TUTAJ---------------------------------------------------
-            /*$sendCodeForVerification = $sendCodeForVerification->sendCodeByEmail($data['IdUser']);
+            $sendCodeForVerification = $sendCodeForVerification->sendCodeByEmail($data['IdUser']);
             if(isset($sendCodeForVerification['error'])) {
                 $data['error'] = "Błąd wysyłania kodu!";
                 $this->redirect('');
             }
             else
-                $data['message'] = "Wysłano kod na email";*/
+                $data['message'] = "Wysłano kod na email";
         }
 
         $view->verificationForm($data);

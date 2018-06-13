@@ -16,20 +16,6 @@ $(document).ready(function() {
         'Wymagane jest przynajmniej 8 znaków, mała, wielka litera, cyfra oraz znak specjalny.'
     );
 
-    $.validator.addMethod(
-        'zakres',
-        function (value, element) {
-            return /[a-zA-ZąęćżźńłóśĄĆĘŁŃÓŚŹŻ\s]+$/.test(value);
-        },
-        'Dozwolone są małe i wielkie litery oraz cyfry.'
-    );
-
-    $.validator.addMethod(
-        'litery',
-        function (value, element) {
-            return /[a-zA-ZąęćżźńłóśĄĆĘŁŃÓŚŹŻ\s]+$/.test(value);
-        },
-        'Dozwolone są małe i wielkie litery.'
-    );
+  
 
 });

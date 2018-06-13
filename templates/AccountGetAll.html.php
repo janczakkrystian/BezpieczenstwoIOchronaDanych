@@ -14,10 +14,7 @@
 			<ul class="socialIcons">
 			{foreach $accountsdictionaries as $id => $accountsdictionary}
 				
-				<li data-path="http://{$smarty.server.HTTP_HOST}{$subdir}index.php?controller=Accounts&action=getByName&id=" class="{$accountsdictionary['Name']}"><a class="#" data-toggle="modal" data-target=".modal"><i class="fa fa-fw fa-{$accountsdictionary['Name']}"></i>{$accountsdictionary['Name']}</a></li>
-				
-			{/foreach}
-				
+				<li data-path="http://{$smarty.server.HTTP_HOST}{$subdir}index.php?controller=Accounts&action=getByName&id=" class="{$accountsdictionary['Name']}"><a class="#" data-toggle="modal" data-target=".modal"><i class="fa fa-fw fa-{$accountsdictionary['Name']}"></i>{$accountsdictionary['Name']}</a></li>{/foreach}
 			</ul>
 			{/if}
 			</div>
@@ -43,9 +40,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="modal-footer">
-                        <a href="#" class="btn" data-dismiss="modal">Close</a>
-                    </div>
+
                 </div>
             </div>
         </div>

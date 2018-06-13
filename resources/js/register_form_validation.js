@@ -4,13 +4,13 @@ $(document).ready(function() {
         rules: {
             FirstName: {
                 required: true,
-                minlength: 5,
+                minlength: 3,
                 maxlength: 30,
-                litery: true
+                litery: false
             },
             LastName: {
                 required: true,
-                minlength: 5,
+                minlength: 3,
                 maxlength: 100,
                 litery: true
             },
@@ -20,7 +20,7 @@ $(document).ready(function() {
             },
             Login: {
                 required: true,
-                minlength: 5,
+                minlength: 3,
                 maxlength: 100,
                 zakres: true
             },
