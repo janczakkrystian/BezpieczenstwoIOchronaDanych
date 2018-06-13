@@ -3,4 +3,5 @@
     </footer>
     </div>
     </body>
+    {block name="js"}{/block}
 </html>

@@ -9,7 +9,6 @@ class Captcha extends Model {
         $privatekey = "6LfuYFYUAAAAAAfsw5fzWdCh7g3j7nKtapeSb7t_";
         $response = file_get_contents($url."?secret=".$privatekey."&response=".$recaptcha."&remoteip=".$_SERVER['REMOTE_ADDR']);
         $checkCaptcha = json_decode($response);
-        //Jeśli Captcha nie została zaznaczona, to przekierowujemy spowrotem do logowania z informacją
         if(!isset($checkCaptcha->success) || $checkCaptcha->success != true){
             $data['error'] = "Jesteś robotem!";
         }

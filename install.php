@@ -155,7 +155,7 @@
     $query = 'CREATE TABLE IF NOT EXISTS `'.DB::$tableLog.'` (
             `'.DB\Log::$IdLog.'` INT NOT NULL AUTO_INCREMENT,
             `'.DB\Log::$Description.'` VARCHAR(200) NOT NULL,
-            `'.DB\Log::$Date.'` DATE NOT NULL,
+            `'.DB\Log::$Date.'` DATETIME NOT NULL,
             `'.DB\Log::$IP.'` VARCHAR(40) NOT NULL,
             `'.DB\Log::$IdUser.'` INT NOT NULL,
             PRIMARY KEY ('.DB\Log::$IdLog.'),

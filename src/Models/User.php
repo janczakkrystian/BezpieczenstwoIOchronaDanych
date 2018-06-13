@@ -5,6 +5,7 @@
     use PHPMailer\PHPMailer\PHPMailer;
     use PHPMailer\PHPMailer\Exception;
     use Models\PasswordHistory;
+    use Models\Log;
     class User extends Model {
 
         private function generateCode(){
@@ -598,6 +599,11 @@
                     $data['message'] = \Config\Database\DBMessageName::$changePasswordOk;
                     $data['change'] = true;
                     \Tools\Session::set(\Tools\Access::$trialLimit, 7);
+                    \Tools\Session::set(\Tools\Access::$passwordExpiration, 0);
+
+                    //Zapisanie do logów
+                    $log = new Log();
+                    $log->newLog("Zmiana hasła." , $user[\Config\Database\DBConfig\User::$IdUser], \Tools\Session::get(\Tools\Access::$ip));
                     return $data;
                 }
             }
@@ -610,14 +616,15 @@
         public function validatePassword($data){
             $Login = $data[0];
             $Password = $data[1];
-            if(isset($data[2]))
-                $Verification = $data[2];
+            $IP = $data[2];
+            if(isset($data[3]))
+                $Verification = $data[3];
             $data = array();
             if($this->pdo === null){
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if($Login === null || $Password === null){
+            if($Login === null || $Password === null || $IP === null){
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
@@ -664,14 +671,22 @@
                                 $data['message'] = \Config\Database\DBMessageName::$loginOk;
                                 $data['active'] = $user[\Config\Database\DBConfig\User::$Active];
 
+                                $passwordHistory = new PasswordHistory();
+                                $passwordExpiration = $passwordHistory->getPasswordExpiration($user[\Config\Database\DBConfig\User::$IdUser]);
+
                                 //Ustaw logowanie w sesji, wraz z danymi konta.
                                 \Tools\Access::login($Login,
                                     $user[\Config\Database\DBConfig\User::$IdUser],
                                     $user[\Config\Database\DBConfig\User::$Active],
                                     $user[\Config\Database\DBConfig\User::$FirstName],
                                     $user[\Config\Database\DBConfig\User::$LastName],
-                                    $user[\Config\Database\DBConfig\User::$TrialLimit]
+                                    $user[\Config\Database\DBConfig\User::$TrialLimit],
+                                    $IP,
+                                    $passwordExpiration
                                 );
+
+                                $log = new Log();
+                                $log->newLog("Zalogowanie się." , $user[\Config\Database\DBConfig\User::$IdUser], $IP);
                             }
                             $data['validate'] = true;
 
@@ -815,6 +830,8 @@
         }
 
         public function logout(){
+            $log = new Log();
+            $log->newLog("Wylogowanie się." , \Tools\Session::get(\Tools\Access::$idUser), \Tools\Session::get(\Tools\Access::$ip));
             \Tools\Access::logout();
         }
 
