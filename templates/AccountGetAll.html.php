@@ -3,10 +3,11 @@
 
     <div class="panel-heading">
         <div class="panel-title text-center">
-            <h1 class="title">Hasła</h1>
+            <h1 class="title">Konta</h1>
         </div>
 		{if $accounts|@count === 0}
-			<div class="alert alert-danger" role="alert">Brak haseł w bazie, dodaj hasła!</div>
+        <div class="alert alert-warning" role="alert">Nie dodano jeszcze żadnego konta.</div>
+        <a href="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Accounts&action=addform" class="center-block btn btn-success">Dodaj</a>
 		{else}
         <div class="row">
 			<div>

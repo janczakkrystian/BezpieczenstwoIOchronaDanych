@@ -4,12 +4,9 @@
 <div class="panel-heading">
     <div class="panel-title text-center">
         <legend class="text-center text-info" style="margin-top: 15px">Zmiana danych</legend>
-
     </div>
-    <form action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Accounts&action=update" id="formularz" method="post" >
-
+    <form action="http://{$smarty.server.HTTP_HOST}{$subdir}?controller=Accounts&action=update" id="accountEdit" method="post" >
         <div class="main-login main-center" >
-
             <div class="form-group" >
                 <div class="cols-sm-10">
                     <div class="form-group">
@@ -34,7 +31,7 @@
                         <div class="cols-sm-10">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-header" aria-hidden="true"></i></span>
-                                <input type="text" class="form-control" name="Login" id="Login"  placeholder="Wprowadz Nowy Login" value="{$Login}"/>
+                                <input type="text" class="form-control" name="Login" id="Login"  placeholder="Wprowadz nowy login" value="{$Login}"/>
                             </div>
                         </div>
                     </div>
@@ -44,24 +41,17 @@
                         <div class="cols-sm-10">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-flask" aria-hidden="true"></i></span>
-                                <input type="text" class="form-control" name="Password" id="Password" placeholder="Wprowadz Nowe Hasło" value="{$Password}"/>
+                                <input type="text" class="form-control" name="Password" id="Password" placeholder="Wprowadz nowe hasło" value="{$Password}"/>
                             </div>
                         </div>
                     </div>
-
+                    <input type="hidden" id="IP" name="IP" required="required" value="127.0.0.2"/>
+                    <input type="hidden" id="idUser" name="idUser" required="required" value="{$smarty.session.idUser}"/>
             <div class="form-group ">
                 <button type="sumbit"  class="btn btn-success  login-button" style="width: 540px">Zapisz</button>
             </div>
-
-
         </div>
-
     </form>
 </div>
-
-
-
-
-
-
 {/block}
+{block name="js"}<script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/logForm.js"></script>{/block}

@@ -1,6 +1,7 @@
 <?php
     namespace Models;
     use \PDO;
+    use \Models\Log;
     class Accounts extends Model {
 
 
@@ -212,13 +213,13 @@
             return $data;
         }
 
-        public function add($IdAccountDictionary, $Login, $Password, $userId)
+        public function add($IdAccountDictionary, $Login, $Password, $userId, $IP)
         {
             if ($this->pdo === null) {
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if ($IdAccountDictionary === null || $Login === null || $Password === null || $userId === null) {
+            if ($IdAccountDictionary === null || $Login === null || $Password === null || $userId === null || $IP === null) {
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
@@ -234,8 +235,45 @@
 				$stmt->execute();
                 if (!$result)
                     $data['error'] = \Config\Database\DBErrorName::$noadd;
-                else
+                else {
                     $data['message'] = \Config\Database\DBMessageName::$addok;
+                    $name = $this->getAccountDictionaryNameById($IdAccountDictionary);
+                    if(isset($name['name']))
+                        $name = "'".$name['name']."'";
+                    else {
+                        $name = "";
+                    }
+                    $log = new Log();
+                    $log->newLog("Dodano konto '".$Login."' do serwisu ".$name , $userId, $IP);
+                }
+                $stmt->closeCursor();
+            } catch (\PDOException $e) {
+                $data['error'] = \Config\Database\DBErrorName::$query;
+            }
+            return $data;
+        }
+
+        private function getAccountDictionaryNameById($idAccountDictionary){
+            $data = array();
+            if ($this->pdo === null) {
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if ($idAccountDictionary === null) {
+                $data['error'] = \Config\Database\DBErrorName::$empty;
+                return $data;
+            }
+            try {
+                $stmt = $this->pdo->prepare('
+                    SELECT *
+                    FROM `' . \Config\Database\DBConfig::$tableAccountDictionary . '`
+                    WHERE `' . \Config\Database\DBConfig::$tableAccountDictionary . '`.`' . \Config\Database\DBConfig\AccountDictionary::$IdAccountDictionary . '` = :id
+                ');
+                $stmt->bindValue(':id', $idAccountDictionary, PDO::PARAM_INT);
+                $result = $stmt->execute();
+                $name = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($result)
+                    $data['name'] = $name[\Config\Database\DBConfig\AccountDictionary::$Name];
                 $stmt->closeCursor();
             } catch (\PDOException $e) {
                 $data['error'] = \Config\Database\DBErrorName::$query;
@@ -269,14 +307,15 @@
             return $data;
         }
 
-        public function update($IdAccount, $IdAccountDictionary, $Login, $Password)
+        public function update($IdAccount, $IdAccountDictionary, $Login, $Password, $IP, $idUser)
         {
             $data = array();
             if ($this->pdo === null) {
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if ($IdAccount === null || $IdAccountDictionary === null || $Login === null || $Password === null) {
+            if ($IdAccount === null || $IdAccountDictionary === null || $Login === null ||
+                $Password === null || $IP === null || $idUser === null) {
                 $data['error'] = \Config\Database\DBErrorName::$empty;
                 return $data;
             }
@@ -295,8 +334,17 @@
                 $rows = $stmt->rowCount();
                 if (!$result)
                     $data['error'] = \Config\Database\DBErrorName::$nomatch;
-                else
+                else {
                     $data['message'] = \Config\Database\DBMessageName::$updateok;
+                    $name = $this->getAccountDictionaryNameById($IdAccountDictionary);
+                    if(isset($name['name']))
+                        $name = "'".$name['name']."'";
+                    else {
+                        $name = "";
+                    }
+                    $log = new Log();
+                    $log->newLog("Edytowano konto '".$Login."' do serwisu ".$name , $idUser, $IP);
+                }
                 $stmt->closeCursor();
             } catch (\PDOException $e) {
                 $data['error'] = \Config\Database\DBErrorName::$query;

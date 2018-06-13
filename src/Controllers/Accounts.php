@@ -43,7 +43,7 @@
             $accessController = new \Controllers\User();
             $accessController->islogin();
             $model = $this->getModel('Accounts');
-            $data = $model->add($_POST['IdAccountDictionary'],$_POST['Login'],$_POST['Password'], $_POST['userId']);
+            $data = $model->add($_POST['IdAccountDictionary'],$_POST['Login'],$_POST['Password'], $_POST['userId'], $_POST['IP']);
 			
             if (isset ($data['error']))
                 \Tools\Session::set('error', $data['error']);
@@ -85,7 +85,7 @@
             $accessController->islogin();
 
             $model = $this->getModel('Accounts');
-            $data = $model->update($_POST['IdAccount']['0'],$_POST['IdAccountDictionary']['0'] ,$_POST['Login'], $_POST['Password']);
+            $data = $model->update($_POST['IdAccount']['0'],$_POST['IdAccountDictionary']['0'] ,$_POST['Login'], $_POST['Password'], $_POST['IP'], $_POST['idUser']);
             if(isset($data['error']))
                 \Tools\Session::set('error' , $data['error']);
             if(isset($data['message']))
