@@ -281,25 +281,75 @@
             return $data;
         }
 
-        public function delete($id)
+        public function delete($id, $idUser, $IP)
         {
             $data = array();
             if ($this->pdo === null) {
                 $data['error'] = \Config\Database\DBErrorName::$connection;
                 return $data;
             }
-            if ($id === null) {
+            if ($id === null || $idUser === null) {
                 $data['error'] = \Config\Database\DBErrorName::$nomatch;
                 return $data;
             }
             try {
+                $accountData = $this->getAccountDataForId($id);
+                if(isset($accountData['account'])){
+                    $accountData = $accountData['account'];
+                    $login = $accountData[ \Config\Database\DBConfig\Account::$Login];
+                    $idAccountDictionary = $accountData[ \Config\Database\DBConfig\Account::$IdAccountDictionary];
+                }
+
                 $stmt = $this->pdo->prepare('DELETE FROM  `' . \Config\Database\DBConfig::$tableAccount . '` WHERE  `' . \Config\Database\DBConfig\Account::$IdAccount . '`=:id');
                 $stmt->bindValue(':id', $id, PDO::PARAM_INT);
                 $result = $stmt->execute();
                 if (!$result)
                     $data['error'] = \Config\Database\DBErrorName::$nomatch;
-                else
+                else {
                     $data['message'] = \Config\Database\DBMessageName::$deleteok;
+                    if(isset($login) && isset($idAccountDictionary)) {
+                        $name = $this->getAccountDictionaryNameById($idAccountDictionary);
+                        if (isset($name['name']))
+                            $name = "'" . $name['name'] . "'";
+                        else {
+                            $name = "";
+                        }
+                        $log = new Log();
+                        $log->newLog("Usunięto konto '" . $login . "' do serwisu " . $name, $idUser, $IP);
+                    }
+                }
+                $stmt->closeCursor();
+            } catch (\PDOException $e) {
+                $data['error'] = \Config\Database\DBErrorName::$query;
+            }
+            return $data;
+        }
+
+        private function getAccountDataForId($idAccount){
+            $data = array();
+            if ($this->pdo === null) {
+                $data['error'] = \Config\Database\DBErrorName::$connection;
+                return $data;
+            }
+            if ($idAccount === null) {
+                $data['error'] = \Config\Database\DBErrorName::$nomatch;
+                return $data;
+            }
+            $data['account'] = array();
+            try {
+                $stmt = $this->pdo->prepare('
+                  SELECT *
+                  FROM `' . \Config\Database\DBConfig::$tableAccount . '`
+                  WHERE  `' . \Config\Database\DBConfig::$tableAccount . '`.`' . \Config\Database\DBConfig\Account::$IdAccount . '`=:id
+                ');
+                $stmt->bindValue(':id', $idAccount, PDO::PARAM_INT);
+                $result = $stmt->execute();
+                if (!$result)
+                    $data['error'] = \Config\Database\DBErrorName::$nomatch;
+                else {
+                    $data['message'] = \Config\Database\DBMessageName::$deleteok;
+                    $data['account'] = $stmt->fetch(PDO::FETCH_ASSOC);
+                }
                 $stmt->closeCursor();
             } catch (\PDOException $e) {
                 $data['error'] = \Config\Database\DBErrorName::$query;

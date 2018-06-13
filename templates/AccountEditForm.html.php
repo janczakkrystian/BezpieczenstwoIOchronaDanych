@@ -45,7 +45,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" id="IP" name="IP" required="required" value="127.0.0.2"/>
+                    <input type="hidden" id="IP" name="IP" required="required" value="{$smarty.session.IPP}"/>
                     <input type="hidden" id="idUser" name="idUser" required="required" value="{$smarty.session.idUser}"/>
             <div class="form-group ">
                 <button type="sumbit"  class="btn btn-success  login-button" style="width: 540px">Zapisz</button>
@@ -54,4 +54,3 @@
     </form>
 </div>
 {/block}
-{block name="js"}<script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/logForm.js"></script>{/block}

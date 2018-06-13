@@ -58,7 +58,7 @@
             $accessController->islogin();
 
             $model = $this->getModel('Accounts');
-            $data = $model->delete($id);
+            $data = $model->delete($id, \Tools\Access::get(\Tools\Access::$idUser), \Tools\Access::get(\Tools\Access::$ip));
             if(isset($data['error']))
                 \Tools\Session::set('error' , $data['error']);
             if(isset($data['message']))

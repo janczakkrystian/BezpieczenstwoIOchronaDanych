@@ -9,13 +9,5 @@ $(document).ready(function() {
         $('#logForm').on('click', function (e) {
             $('#IP').val(ip);
         });
-
-        $('#accountAdd').on('click', function (e) {
-            $('#IP').val(ip);
-        });
-
-        $('#accountEdit').on('click', function (e) {
-            $('#IP').val(ip);
-        });
     });
 });

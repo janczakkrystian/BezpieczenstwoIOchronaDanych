@@ -22,7 +22,7 @@
                 <label for="Password"style="margin-top: -7px">Hasło</label>
                 <input type="text" class="form-control" name="Password" id="Password" placeholder="Podaj hasło do serwisu" required="required"/>
             </div>
-            <input type="hidden" id="IP" name="IP" required="required" value="127.0.0.2"/>
+            <input type="hidden" id="IP" name="IP" required="required" value="{$smarty.session.IPP}"/>
 			
 			<input type="hidden" name="userId" value="{$smarty.session.idUser}"/>
 			
@@ -31,4 +31,3 @@
     </div>
 </div>
 {/block}
-{block name="js"}<script src="http://{$smarty.server.HTTP_HOST}{$subdir}resources/js/logForm.js"></script>{/block}
