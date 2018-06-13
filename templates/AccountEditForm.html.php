@@ -50,7 +50,7 @@
                     </div>
 
             <div class="form-group ">
-                <button type="sumbit"  class="btn btn-success  login-button" style="width: 540px">Zapisz Nowe Dane</button>
+                <button type="sumbit"  class="btn btn-success  login-button" style="width: 540px">Zapisz</button>
             </div>
 
 
