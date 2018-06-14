@@ -27,8 +27,13 @@
                 $account[$row['IdAccount']] = $row;
             }
             $stmt->closeCursor();
-            if($account && !empty($account))
+            if($account && !empty($account)) {
+                foreach ($account as $key => $acc){
+                    $account[$key][\Config\Database\DBConfig\Account::$Login] = base64_decode($acc[\Config\Database\DBConfig\Account::$Login]);
+                    $account[$key][\Config\Database\DBConfig\Account::$Password] = base64_decode($acc[\Config\Database\DBConfig\Account::$Password]);
+                }
                 $data['account'] = $account;
+            }
             else
                 $data['account']= array();
             }
@@ -60,8 +65,13 @@
             $account = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt->closeCursor();
 			
-            if($account && !empty($account))
+            if($account && !empty($account)) {
+                foreach ($account as $key => $acc){
+                    $account[$key][\Config\Database\DBConfig\Account::$Login] = base64_decode($acc[\Config\Database\DBConfig\Account::$Login]);
+                    $account[$key][\Config\Database\DBConfig\Account::$Password] = base64_decode($acc[\Config\Database\DBConfig\Account::$Password]);
+                }
                 $data['account'] = $account;
+            }
             else
                 $data['account']= array();
             }
@@ -93,8 +103,9 @@
             $account = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt->closeCursor();
 			
-            if($account && !empty($account))
+            if($account && !empty($account)) {
                 $data['account'] = $account;
+            }
             else
                 $data['account']= array();
             }
@@ -173,8 +184,11 @@
                 $result = $stmt->execute();
                 $account = $stmt->fetch();
                 $stmt->closeCursor();
-                if ($account && !empty($account))
+                if ($account && !empty($account)) {
+                    $account[\Config\Database\DBConfig\Account::$Login] = base64_decode($account[\Config\Database\DBConfig\Account::$Login]);
+                    $account[\Config\Database\DBConfig\Account::$Password] = base64_decode($account[\Config\Database\DBConfig\Account::$Password]);
                     $data['account'] = $account;
+                }
                 else
                     $data['error'] = \Config\Database\DBErrorName::$nomatch;
             } catch (\PDOException $e) {
@@ -202,8 +216,11 @@
                 $result = $stmt->execute();
                 $account = $stmt->fetch(PDO::FETCH_ASSOC);
                 $stmt->closeCursor();
-                if ($account && !empty($account))
+                if ($account && !empty($account)) {
+                    //$account[\Config\Database\DBConfig\Account::$Login] = base64_decode($account[\Config\Database\DBConfig\Account::$Login]);
+                    //$account[\Config\Database\DBConfig\Account::$Password] = base64_decode($account[\Config\Database\DBConfig\Account::$Password]);
                     $data['account'] = $account;
+                }
                 else
                     $data['error'] = \Config\Database\DBErrorName::$nomatch;
             } catch (\PDOException $e) {
@@ -227,8 +244,8 @@
             try {
                 $stmt = $this->pdo->prepare('INSERT INTO `' . \Config\Database\DBConfig::$tableAccount . '` (`' . \Config\Database\DBConfig\Account::$IdAccountDictionary . '` , `' . \Config\Database\DBConfig\Account::$Login . '` , `' . \Config\Database\DBConfig\Account::$Password . '`) VALUES (:IdAccountDictionary , :Login , :Password)');
                 $stmt->bindValue(':IdAccountDictionary', $IdAccountDictionary, PDO::PARAM_INT);
-                $stmt->bindValue(':Login', $Login, PDO::PARAM_STR);
-                $stmt->bindValue(':Password', $Password, PDO::PARAM_STR);
+                $stmt->bindValue(':Login', base64_encode($Login), PDO::PARAM_STR);
+                $stmt->bindValue(':Password', base64_encode($Password), PDO::PARAM_STR);
                 $result = $stmt->execute();
 				$id = $this->pdo->lastInsertId();
 				$stmt = $this->pdo->prepare('INSERT INTO useraccount (IdUser, IdAccount) VALUES ('.$userId.', '.$id.')');
@@ -377,8 +394,8 @@
                     . \Config\Database\DBConfig\Account::$IdAccount . '`=:IdAccount');
 
                 $stmt->bindValue(':IdAccountDictionary', $IdAccountDictionary, PDO::PARAM_INT);
-                $stmt->bindValue(':Login', $Login, PDO::PARAM_STR);
-                $stmt->bindValue(':Password', $Password, PDO::PARAM_STR);
+                $stmt->bindValue(':Login', base64_encode($Login), PDO::PARAM_STR);
+                $stmt->bindValue(':Password', base64_encode($Password), PDO::PARAM_STR);
                 $stmt->bindValue(':IdAccount', $IdAccount, PDO::PARAM_INT);
                 $result = $stmt->execute();
                 $rows = $stmt->rowCount();
