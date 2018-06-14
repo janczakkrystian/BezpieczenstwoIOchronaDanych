@@ -217,8 +217,6 @@
                 $account = $stmt->fetch(PDO::FETCH_ASSOC);
                 $stmt->closeCursor();
                 if ($account && !empty($account)) {
-                    //$account[\Config\Database\DBConfig\Account::$Login] = base64_decode($account[\Config\Database\DBConfig\Account::$Login]);
-                    //$account[\Config\Database\DBConfig\Account::$Password] = base64_decode($account[\Config\Database\DBConfig\Account::$Password]);
                     $data['account'] = $account;
                 }
                 else
