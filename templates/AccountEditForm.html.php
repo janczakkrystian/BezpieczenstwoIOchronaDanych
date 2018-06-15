@@ -30,7 +30,7 @@
                         <label for="Login" class="cols-sm-2 control-label"">Login</label>
                         <div class="cols-sm-10">
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-header" aria-hidden="true"></i></span>
+                                <span class="input-group-addon"></span>
                                 <input type="text" class="form-control" name="Login" id="Login"  placeholder="Wprowadz nowy login" value="{$Login}"/>
                             </div>
                         </div>
@@ -40,7 +40,7 @@
                         <label for="Password" class="cols-sm-2 control-label">Hasło</label>
                         <div class="cols-sm-10">
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-flask" aria-hidden="true"></i></span>
+                                <span class="input-group-addon"></span>
                                 <input type="text" class="form-control" name="Password" id="Password" placeholder="Wprowadz nowe hasło" value="{$Password}"/>
                             </div>
                         </div>
